@@ -73,4 +73,40 @@ class PaymentParserTest {
     fun promo_without_payment_verb_is_ignored() {
         assertNull(PaymentParser.parse(PAYTM, "Paytm", "Get ₹50 cashback on your next recharge!", 1L))
     }
+
+    // ---- screen parsing (accessibility service) ----
+
+    @Test
+    fun screen_paytm_success() {
+        val screen = "Payment Successful | ₹500 | Paid to Coffee House | UPI Ref 123456 | Done"
+        val p = PaymentParser.parseScreen(PAYTM, screen, 1L)
+        assertNotNull(p)
+        assertEquals(500.0, p!!.amount, 0.001)
+        assertEquals("Coffee House", p.vendor)
+        assertEquals("Paytm", p.source)
+    }
+
+    @Test
+    fun screen_gpay_success() {
+        val screen = "₹1,200 | Completed | To Rahul Sharma | 8 Jul, 4:55 pm"
+        val p = PaymentParser.parseScreen(GPAY, screen, 1L)
+        assertNotNull(p)
+        assertEquals(1200.0, p!!.amount, 0.001)
+    }
+
+    @Test
+    fun screen_enter_amount_is_ignored() {
+        // No success marker yet -> should not fire.
+        assertNull(PaymentParser.parseScreen(PAYTM, "Enter amount | ₹500 | Pay", 1L))
+    }
+
+    @Test
+    fun screen_incoming_is_ignored() {
+        assertNull(PaymentParser.parseScreen(PAYTM, "Payment received | ₹500 | from Alice", 1L))
+    }
+
+    @Test
+    fun screen_unsupported_package_is_ignored() {
+        assertNull(PaymentParser.parseScreen("com.random.app", "Payment Successful ₹500 to X", 1L))
+    }
 }

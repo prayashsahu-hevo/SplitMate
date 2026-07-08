@@ -21,9 +21,9 @@ object PaymentParser {
     private val AMOUNT_REGEX =
         Regex("""(?:₹|rs\.?|inr)\s*([0-9][0-9,]*(?:\.[0-9]{1,2})?)""", RegexOption.IGNORE_CASE)
 
-    // "to John Doe" / "to Big Bazaar" up to a stop word or punctuation.
+    // "to John Doe" / "to Big Bazaar" up to a stop word, punctuation, or a "|" node separator.
     private val VENDOR_REGEX =
-        Regex("""\bto\s+([A-Za-z0-9][A-Za-z0-9 &.'@_-]{0,48}?)(?=\s+(?:on|via|using|for|ref|upi|txn|successfully|is|has)\b|[.!,\n]|$)""",
+        Regex("""\bto\s+([A-Za-z0-9][A-Za-z0-9 &.'@_-]{0,48}?)(?=\s+(?:on|via|using|for|ref|upi|txn|successfully|is|has)\b|[.!,\n|]|$)""",
             RegexOption.IGNORE_CASE)
 
     // Words that indicate money LEFT your account.
@@ -31,6 +31,37 @@ object PaymentParser {
 
     // Words that indicate an incoming / non-payment notification we must ignore.
     private val INCOMING_HINTS = listOf("received", "credited", "added to", "request", "requesting", "cashback", "refund")
+
+    // Text seen on a UPI *payment-success* screen (read via the accessibility service).
+    private val SCREEN_SUCCESS_MARKERS =
+        listOf("successful", "payment success", "paid", "completed", "money sent", "payment done")
+
+    /**
+     * Parse the on-screen text of a UPI app captured by the accessibility service.
+     * Only fires on a success screen that names an amount — avoids the "enter amount" screen.
+     *
+     * @return a [Payment] if this looks like a completed outgoing payment, else null.
+     */
+    fun parseScreen(pkg: String, screenText: String?, whenMillis: Long): Payment? {
+        val source = SUPPORTED_PACKAGES[pkg] ?: return null
+        if (screenText.isNullOrBlank()) return null
+        val lower = screenText.lowercase()
+
+        // Must look like a success screen...
+        if (SCREEN_SUCCESS_MARKERS.none { lower.contains(it) }) return null
+        // ...and not an incoming / request screen.
+        if (lower.contains("received") || lower.contains("requested") || lower.contains("added to")) return null
+
+        val amount = AMOUNT_REGEX.find(screenText)
+            ?.groupValues?.get(1)?.replace(",", "")?.toDoubleOrNull()
+            ?: return null
+
+        val vendor = VENDOR_REGEX.find(screenText)
+            ?.groupValues?.get(1)?.trim()?.takeIf { it.isNotBlank() }
+            .orEmpty()
+
+        return Payment(amount, vendor, source, whenMillis, screenText.take(200))
+    }
 
     /**
      * @return a [Payment] if this looks like an outgoing UPI payment, else null.

@@ -15,6 +15,7 @@ import com.prayash.splitmate.R
 import com.prayash.splitmate.data.Payment
 import com.prayash.splitmate.data.Prefs
 import com.prayash.splitmate.databinding.ActivityMainBinding
+import com.prayash.splitmate.service.PaymentAccessibilityService
 import com.prayash.splitmate.service.PaymentNotificationListener
 
 /**
@@ -43,6 +44,9 @@ class MainActivity : AppCompatActivity() {
                     Uri.parse("package:$packageName")
                 )
             )
+        }
+        binding.btnAccessibility.setOnClickListener {
+            startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
         }
         binding.btnContacts.setOnClickListener {
             if (!hasContacts()) requestPermissions(arrayOf(Manifest.permission.READ_CONTACTS), 1)
@@ -82,7 +86,16 @@ class MainActivity : AppCompatActivity() {
     private fun refreshStatuses() {
         mark(binding.tvNotifStatus, R.string.perm_notif, isNotifListenerEnabled())
         mark(binding.tvOverlayStatus, R.string.perm_overlay, Settings.canDrawOverlays(this))
+        mark(binding.tvAccessibilityStatus, R.string.perm_accessibility, isAccessibilityEnabled())
         mark(binding.tvContactsStatus, R.string.perm_contacts, hasContacts())
+    }
+
+    private fun isAccessibilityEnabled(): Boolean {
+        val flat = Settings.Secure.getString(
+            contentResolver, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
+        ) ?: return false
+        val cn = ComponentName(this, PaymentAccessibilityService::class.java)
+        return flat.split(":").any { ComponentName.unflattenFromString(it) == cn }
     }
 
     private fun mark(view: android.widget.TextView, labelRes: Int, granted: Boolean) {

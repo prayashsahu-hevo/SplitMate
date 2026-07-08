@@ -54,7 +54,21 @@
             android:taskAffinity=""
             android:theme="@style/Theme.SplitMate.Transparent" />
 
-        <!-- Notification listener that detects UPI payments -->
+        <!-- Accessibility service: reads the UPI payment-success screen in real time -->
+        <service
+            android:name=".service.PaymentAccessibilityService"
+            android:exported="false"
+            android:label="@string/app_name"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/accessibility_service_config" />
+        </service>
+
+        <!-- Notification listener that detects UPI payments (bonus for apps that notify) -->
         <service
             android:name=".service.PaymentNotificationListener"
             android:exported="false"
