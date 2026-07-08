@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Two overlapping "people" dots split by a line = a shared expense -->
+    <group android:scaleX="1.0" android:scaleY="1.0">
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M42,44 m-11,0 a11,11 0 1,0 22,0 a11,11 0 1,0 -22,0" />
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M42,58 c-12,0 -20,7 -20,15 l40,0 c0,-8 -8,-15 -20,-15z" />
+        <path
+            android:fillColor="#D0BCFF"
+            android:pathData="M70,44 m-11,0 a11,11 0 1,0 22,0 a11,11 0 1,0 -22,0" />
+        <path
+            android:fillColor="#D0BCFF"
+            android:pathData="M70,58 c-12,0 -20,7 -20,15 l40,0 c0,-8 -8,-15 -20,-15z" />
+    </group>
+</vector>

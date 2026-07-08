@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/app_name"
+            android:textSize="28sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/tagline"
+            android:textColor="#79747E"
+            android:layout_marginBottom="20dp" />
+
+        <!-- ===== Setup / permissions ===== -->
+        <TextView style="@style/SectionHeader" android:text="@string/setup" />
+
+        <TextView
+            android:id="@+id/tvNotifStatus"
+            style="@style/StatusRow"
+            android:text="@string/perm_notif" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnNotif"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/grant_notif" />
+
+        <TextView
+            android:id="@+id/tvOverlayStatus"
+            style="@style/StatusRow"
+            android:layout_marginTop="12dp"
+            android:text="@string/perm_overlay" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnOverlay"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/grant_overlay" />
+
+        <TextView
+            android:id="@+id/tvContactsStatus"
+            style="@style/StatusRow"
+            android:layout_marginTop="12dp"
+            android:text="@string/perm_contacts" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnContacts"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/grant_contacts" />
+
+        <!-- ===== Settings ===== -->
+        <TextView style="@style/SectionHeader" android:text="@string/settings"
+            android:layout_marginTop="28dp" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/hint_script_url"
+            app:helperText="@string/help_script_url">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etScriptUrl"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textUri" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:hint="@string/hint_own_name">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etOwnName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPersonName" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:hint="@string/hint_own_wa"
+            app:helperText="@string/help_own_wa">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etOwnWa"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="phone" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:hint="@string/hint_cc">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etCc"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSaveSettings"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:paddingVertical="14dp"
+            android:text="@string/save_settings" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnTest"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/test_popup" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnDebugLog"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/open_debug_log" />
+
+    </LinearLayout>
+</ScrollView>
