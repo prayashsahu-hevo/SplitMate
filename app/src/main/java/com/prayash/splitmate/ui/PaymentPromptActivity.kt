@@ -124,7 +124,7 @@ class PaymentPromptActivity : AppCompatActivity() {
 
         Toast.makeText(this, R.string.saving, Toast.LENGTH_SHORT).show()
         Thread {
-            val ok = SheetRepository(url).postPersonal(
+            val ok = SheetRepository(applicationContext, url).postPersonal(
                 dateStr, timeStr, payment.vendor, payment.amount, reason, category, payment.source
             )
             runOnUiThread {
@@ -258,7 +258,7 @@ class PaymentPromptActivity : AppCompatActivity() {
         // Persist the shared row (fire-and-forget with a toast on the result).
         Toast.makeText(this, R.string.saving, Toast.LENGTH_SHORT).show()
         Thread {
-            val ok = SheetRepository(url).postShared(
+            val ok = SheetRepository(applicationContext, url).postShared(
                 dateStr, timeStr, payment.vendor, payment.amount, reason, category,
                 divisor(), share,
                 selectedContacts.map { it.name }, customNames, yourShare, payment.source
