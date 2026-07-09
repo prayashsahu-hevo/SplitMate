@@ -223,19 +223,11 @@ class PaymentPromptActivity : AppCompatActivity() {
             Toast.makeText(this, R.string.no_contacts, Toast.LENGTH_SHORT).show()
             return
         }
-        val labels = allContacts.map { it.label }.toTypedArray()
-        val checked = BooleanArray(allContacts.size) { i -> selectedContacts.contains(allContacts[i]) }
-
-        AlertDialog.Builder(this)
-            .setTitle(R.string.pick_contacts)
-            .setMultiChoiceItems(labels, checked) { _, which, isChecked -> checked[which] = isChecked }
-            .setPositiveButton(R.string.ok) { _, _ ->
-                selectedContacts.clear()
-                allContacts.forEachIndexed { i, c -> if (checked[i]) selectedContacts.add(c) }
-                recomputeSplit()
-            }
-            .setNegativeButton(R.string.cancel, null)
-            .show()
+        ContactPickerDialog.show(this, allContacts, selectedContacts) { chosen ->
+            selectedContacts.clear()
+            selectedContacts.addAll(chosen)
+            recomputeSplit()
+        }
     }
 
     private fun saveSplitAndPrepare() {

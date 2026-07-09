@@ -41,6 +41,7 @@
     <string name="how_many_people">How many people to split with? (not counting you)</string>
     <string name="include_my_share">Include my share too</string>
     <string name="pick_contacts">Pick contacts</string>
+    <string name="search_contacts">Search by name or number</string>
     <string name="selected_contacts_fmt">Selected: %1$s</string>
     <string name="custom_person_hint">Name of person %1$d (no contact)</string>
     <string name="save_and_prepare_messages">Save &amp; prepare messages</string>

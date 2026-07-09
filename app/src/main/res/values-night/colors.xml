@@ -1,17 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Dark theme — deep slate (not pure black), gentle contrast -->
-    <color name="sm_bg">#121319</color>
-    <color name="sm_surface">#1C1E27</color>
-    <color name="sm_surface_variant">#262935</color>
-    <color name="sm_primary">#AAB2FF</color>
-    <color name="sm_primary_container">#2E3470</color>
-    <color name="sm_on_primary">#0F1230</color>
-    <color name="sm_on_primary_container">#DDE1FF</color>
-    <color name="sm_text">#ECEEF7</color>
-    <color name="sm_text_muted">#9BA0B6</color>
-    <color name="sm_outline">#313545</color>
-    <color name="sm_success">#4ECB8E</color>
-    <color name="sm_accent">#4FD0C7</color>
-    <color name="sm_scrim">#B3000005</color>
+    <!-- Dark theme — bright indigo + teal on deep slate -->
+    <color name="sm_bg">#101019</color>
+    <color name="sm_surface">#191925</color>
+    <color name="sm_surface_variant">#232338</color>
+    <color name="sm_primary">#A18CFF</color>
+    <color name="sm_primary_container">#3A2C86</color>
+    <color name="sm_on_primary">#160F3A</color>
+    <color name="sm_on_primary_container">#E7E0FF</color>
+    <color name="sm_text">#ECECF7</color>
+    <color name="sm_text_muted">#9A9AB4</color>
+    <color name="sm_outline">#2E2E47</color>
+    <color name="sm_success">#2BE06E</color>
+    <color name="sm_accent">#2EE6D3</color>
+    <color name="sm_scrim">#B3000006</color>
+    <color name="sm_personal_tint">#282155</color>
+    <color name="sm_split_tint">#123F3B</color>
+
+    <!-- Fixed vivid gradient (same in both themes) -->
+    <color name="sm_grad_start">#6C4DF6</color>
+    <color name="sm_grad_end">#06C7B8</color>
 </resources>

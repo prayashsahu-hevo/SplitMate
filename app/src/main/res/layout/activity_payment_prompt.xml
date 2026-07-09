@@ -26,74 +26,67 @@
                 android:orientation="vertical"
                 android:padding="18dp">
 
-                <!-- ===== Header ===== -->
-                <com.google.android.material.card.MaterialCardView
+                <!-- ===== Header (vivid gradient hero) ===== -->
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:cardBackgroundColor="@color/sm_primary_container"
-                    app:cardCornerRadius="22dp"
-                    app:cardElevation="0dp">
+                    android:background="@drawable/bg_gradient"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:padding="20dp">
+
+                    <ImageView
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:src="@drawable/ic_wallet"
+                        android:layout_marginEnd="14dp"
+                        android:contentDescription="@null" />
 
                     <LinearLayout
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:padding="18dp">
+                        android:orientation="vertical">
 
-                        <ImageView
-                            android:layout_width="26dp"
-                            android:layout_height="26dp"
-                            android:src="@drawable/ic_wallet"
-                            android:layout_marginEnd="14dp"
-                            android:contentDescription="@null" />
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_weight="1"
+                        <TextView
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:orientation="vertical">
+                            android:text="@string/new_payment"
+                            android:textColor="#FFFFFF"
+                            android:textSize="11sp"
+                            android:textStyle="bold"
+                            android:letterSpacing="0.12"
+                            android:alpha="0.85" />
 
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/new_payment"
-                                android:textColor="@color/sm_on_primary_container"
-                                android:textSize="11sp"
-                                android:textStyle="bold"
-                                android:letterSpacing="0.12"
-                                android:alpha="0.8" />
+                        <TextView
+                            android:id="@+id/tvAmount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="#FFFFFF"
+                            android:textSize="34sp"
+                            android:textStyle="bold"
+                            tools:text="₹500" />
 
-                            <TextView
-                                android:id="@+id/tvAmount"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:textColor="@color/sm_on_primary_container"
-                                android:textSize="32sp"
-                                android:textStyle="bold"
-                                tools:text="₹500" />
+                        <TextView
+                            android:id="@+id/tvVendor"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="#FFFFFF"
+                            android:textSize="14sp"
+                            android:alpha="0.92"
+                            tools:text="to Big Bazaar" />
 
-                            <TextView
-                                android:id="@+id/tvVendor"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:textColor="@color/sm_on_primary_container"
-                                android:textSize="14sp"
-                                android:alpha="0.85"
-                                tools:text="to Big Bazaar" />
-
-                            <TextView
-                                android:id="@+id/tvMeta"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
-                                android:textColor="@color/sm_on_primary_container"
-                                android:textSize="12sp"
-                                android:alpha="0.65"
-                                tools:text="09 Jul 2026, 3:40 PM · Google Pay" />
-                        </LinearLayout>
+                        <TextView
+                            android:id="@+id/tvMeta"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:textColor="#FFFFFF"
+                            android:textSize="12sp"
+                            android:alpha="0.72"
+                            tools:text="09 Jul 2026, 3:40 PM · Google Pay" />
                     </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
+                </LinearLayout>
 
                 <!-- ===== Section: choose type ===== -->
                 <LinearLayout
@@ -119,10 +112,10 @@
                         android:layout_height="wrap_content"
                         android:clickable="true"
                         android:focusable="true"
-                        app:cardBackgroundColor="@color/sm_surface_variant"
+                        app:cardBackgroundColor="@color/sm_personal_tint"
                         app:cardCornerRadius="18dp"
                         app:cardElevation="0dp"
-                        app:strokeColor="@color/sm_outline"
+                        app:strokeColor="@color/sm_primary"
                         app:strokeWidth="1dp"
                         app:rippleColor="@color/sm_primary">
 
@@ -178,10 +171,10 @@
                         android:layout_marginTop="10dp"
                         android:clickable="true"
                         android:focusable="true"
-                        app:cardBackgroundColor="@color/sm_surface_variant"
+                        app:cardBackgroundColor="@color/sm_split_tint"
                         app:cardCornerRadius="18dp"
                         app:cardElevation="0dp"
-                        app:strokeColor="@color/sm_outline"
+                        app:strokeColor="@color/sm_accent"
                         app:strokeWidth="1dp"
                         app:rippleColor="@color/sm_accent">
 
