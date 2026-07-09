@@ -81,7 +81,7 @@ class PaymentPromptActivity : AppCompatActivity() {
     // ---------------------------------------------------------------- header
 
     private fun bindHeader() {
-        binding.tvAmount.text = money(payment.amount)
+        binding.etAmount.setText(amountToField(payment.amount))
         binding.tvVendor.text = if (payment.vendor.isBlank()) "" else "to ${payment.vendor}"
         val dt = SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault())
             .format(Date(payment.timestampMillis))
@@ -129,6 +129,7 @@ class PaymentPromptActivity : AppCompatActivity() {
             override fun onTextChanged(s: CharSequence?, a: Int, b: Int, c: Int) {}
         }
         binding.etPeople.addTextChangedListener(recompute)
+        binding.etAmount.addTextChangedListener(recompute)
         binding.cbIncludeSelf.setOnCheckedChangeListener { _, _ -> recomputeSplit() }
     }
 
@@ -143,7 +144,7 @@ class PaymentPromptActivity : AppCompatActivity() {
         Toast.makeText(this, R.string.saving, Toast.LENGTH_SHORT).show()
         Thread {
             val ok = SheetRepository(applicationContext, url).postPersonal(
-                dateStr, timeStr, payment.vendor, payment.amount, reason, category, payment.source
+                dateStr, timeStr, payment.vendor, currentAmount(), reason, category, payment.source
             )
             runOnUiThread {
                 Toast.makeText(
@@ -165,7 +166,7 @@ class PaymentPromptActivity : AppCompatActivity() {
 
     private fun perShare(): Double {
         val d = divisor()
-        return if (d <= 0) 0.0 else payment.amount / d
+        return if (d <= 0) 0.0 else currentAmount() / d
     }
 
     /** Rebuild the custom-name inputs and the share preview whenever inputs change. */
@@ -273,7 +274,7 @@ class PaymentPromptActivity : AppCompatActivity() {
         Toast.makeText(this, R.string.saving, Toast.LENGTH_SHORT).show()
         Thread {
             val ok = SheetRepository(applicationContext, url).postShared(
-                dateStr, timeStr, payment.vendor, payment.amount, reason, category,
+                dateStr, timeStr, payment.vendor, currentAmount(), reason, category,
                 payment.source, people
             )
             runOnUiThread {
@@ -298,7 +299,7 @@ class PaymentPromptActivity : AppCompatActivity() {
 
         selectedContacts.forEach { contact ->
             val msg = MessageTemplates.forFriend(
-                contact.name, prefs.ownName, payment.vendor, reason, payment.amount, share
+                contact.name, prefs.ownName, payment.vendor, reason, currentAmount(), share
             )
             val phone = WhatsAppHelper.normalize(contact.number, prefs.countryCode)
             sendQueue.add(contact.name to { WhatsAppHelper.openChat(this, phone, msg) })
@@ -386,6 +387,13 @@ class PaymentPromptActivity : AppCompatActivity() {
 
     private fun money(a: Double): String =
         if (a % 1.0 == 0.0) "₹${a.toLong()}" else "₹%.2f".format(a)
+
+    /** The amount to use everywhere — the (possibly user-corrected) value in the editable field. */
+    private fun currentAmount(): Double =
+        binding.etAmount.text?.toString()?.trim()?.toDoubleOrNull()?.takeIf { it > 0 } ?: payment.amount
+
+    private fun amountToField(a: Double): String =
+        if (a % 1.0 == 0.0) a.toLong().toString() else "%.2f".format(a)
 
     private fun dp(v: Int): Int = (v * resources.displayMetrics.density).toInt()
 

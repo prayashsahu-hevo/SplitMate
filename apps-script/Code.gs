@@ -14,8 +14,9 @@ var PERSONAL_HEADERS = [
   'Date', 'Time', 'Vendor', 'Amount', 'Reason', 'Category', 'Source', 'Logged At'
 ];
 
-// One row PER PERSON. "Total Unpaid" is a live formula (col J) so it updates both
-// when a new unpaid row is added and when you flip a Status to Paid.
+// One row PER PERSON. "Total Unpaid" is a live formula (col J) = how much THAT person
+// still owes across all their Unpaid rows; it updates when a new unpaid row is added
+// for them and when you flip one of their rows to Paid.
 var SHARED_HEADERS = [
   'Date', 'Time', 'Vendor', 'Reason', 'Category', 'Total Expense',
   'Person', 'Share', 'Status', 'Total Unpaid', 'Source', 'Logged At'
@@ -42,8 +43,10 @@ function doPost(e) {
           Number(data.totalAmount), p.name, Number(p.share), 'Unpaid',
           '', data.source, now
         ]);
-        // Live outstanding total: sum of Share (col H) where Status (col I) = "Unpaid".
-        sheet.getRange(sheet.getLastRow(), 10).setFormula('=SUMIF(I:I,"Unpaid",H:H)');
+        // This person's outstanding: sum of Share (H) where Status (I)="Unpaid"
+        // AND Person (G) equals this row's person. Updates when their rows change.
+        var r = sheet.getLastRow();
+        sheet.getRange(r, 10).setFormula('=SUMIFS(H:H,I:I,"Unpaid",G:G,G' + r + ')');
       }
     } else {
       return json_({ ok: false, error: 'unknown type: ' + data.type });

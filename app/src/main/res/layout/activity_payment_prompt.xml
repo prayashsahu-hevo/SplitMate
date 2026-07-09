@@ -58,14 +58,47 @@
                             android:letterSpacing="0.12"
                             android:alpha="0.85" />
 
-                        <TextView
-                            android:id="@+id/tvAmount"
+                        <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="₹"
+                                android:textColor="#FFFFFF"
+                                android:textSize="34sp"
+                                android:textStyle="bold"
+                                android:layout_marginEnd="2dp" />
+
+                            <EditText
+                                android:id="@+id/etAmount"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@android:color/transparent"
+                                android:textColor="#FFFFFF"
+                                android:textColorHint="#80FFFFFF"
+                                android:textCursorDrawable="@null"
+                                android:textSize="34sp"
+                                android:textStyle="bold"
+                                android:inputType="numberDecimal"
+                                android:minWidth="70dp"
+                                android:maxLength="12"
+                                android:imeOptions="actionDone"
+                                android:importantForAutofill="no"
+                                android:hint="0"
+                                tools:text="500" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/amount_edit_hint"
                             android:textColor="#FFFFFF"
-                            android:textSize="34sp"
-                            android:textStyle="bold"
-                            tools:text="₹500" />
+                            android:textSize="11sp"
+                            android:alpha="0.7" />
 
                         <TextView
                             android:id="@+id/tvVendor"

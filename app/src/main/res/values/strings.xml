@@ -29,6 +29,7 @@
 
     <!-- prompt -->
     <string name="new_payment">New payment</string>
+    <string name="amount_edit_hint">✎ tap the amount to fix it</string>
     <string name="is_this">Is this a personal expense or should it be split?</string>
     <string name="personal_expense">Personal expense</string>
     <string name="personal_sub">Just log it to my sheet</string>
