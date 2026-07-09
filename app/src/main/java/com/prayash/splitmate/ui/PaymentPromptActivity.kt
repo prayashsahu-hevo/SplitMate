@@ -262,16 +262,19 @@ class PaymentPromptActivity : AppCompatActivity() {
         val reason = binding.etReasonSplit.text?.toString()?.trim().orEmpty()
         val category = binding.spCategorySplit.text?.toString().orEmpty()
         val share = perShare()
-        val yourShare = if (binding.cbIncludeSelf.isChecked) share else 0.0
         val (dateStr, timeStr) = dateTime()
 
-        // Persist the shared row (fire-and-forget with a toast on the result).
+        // One row per person who owes: selected contacts + typed custom names, each owing `share`.
+        val people = mutableListOf<Pair<String, Double>>()
+        selectedContacts.forEach { people.add(it.name to share) }
+        customNames.forEach { people.add(it to share) }
+
+        // Persist the shared rows (fire-and-forget with a toast on the result).
         Toast.makeText(this, R.string.saving, Toast.LENGTH_SHORT).show()
         Thread {
             val ok = SheetRepository(applicationContext, url).postShared(
                 dateStr, timeStr, payment.vendor, payment.amount, reason, category,
-                divisor(), share,
-                selectedContacts.map { it.name }, customNames, yourShare, payment.source
+                payment.source, people
             )
             runOnUiThread {
                 Toast.makeText(

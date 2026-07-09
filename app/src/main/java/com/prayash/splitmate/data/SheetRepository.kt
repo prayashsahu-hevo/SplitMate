@@ -2,6 +2,7 @@ package com.prayash.splitmate.data
 
 import android.content.Context
 import android.util.Log
+import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URL
@@ -32,19 +33,23 @@ class SheetRepository(private val context: Context, scriptUrl: String) {
         put("source", source)
     })
 
+    /** [people] = one entry per person who owes: name to their share. Each becomes its own row. */
     fun postShared(
         dateStr: String, timeStr: String, vendor: String, totalAmount: Double,
-        reason: String, category: String, numPeople: Int, perPersonShare: Double,
-        contacts: List<String>, unreachedNames: List<String>, yourShare: Double, source: String
-    ): Boolean = post(JSONObject().apply {
-        put("type", "shared")
-        put("date", dateStr); put("time", timeStr); put("vendor", vendor)
-        put("totalAmount", totalAmount); put("reason", reason); put("category", category)
-        put("numPeople", numPeople); put("perPersonShare", perPersonShare)
-        put("contacts", contacts.joinToString(", "))
-        put("unreached", unreachedNames.joinToString(", "))
-        put("yourShare", yourShare); put("source", source)
-    })
+        reason: String, category: String, source: String,
+        people: List<Pair<String, Double>>
+    ): Boolean {
+        val arr = JSONArray()
+        people.forEach { (name, share) ->
+            arr.put(JSONObject().put("name", name).put("share", share))
+        }
+        return post(JSONObject().apply {
+            put("type", "shared")
+            put("date", dateStr); put("time", timeStr); put("vendor", vendor)
+            put("totalAmount", totalAmount); put("reason", reason); put("category", category)
+            put("source", source); put("people", arr)
+        })
+    }
 
     private fun post(body: JSONObject): Boolean {
         if (url.isBlank()) {

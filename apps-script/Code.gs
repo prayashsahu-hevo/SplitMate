@@ -14,10 +14,11 @@ var PERSONAL_HEADERS = [
   'Date', 'Time', 'Vendor', 'Amount', 'Reason', 'Category', 'Source', 'Logged At'
 ];
 
+// One row PER PERSON. "Total Unpaid" is a live formula (col J) so it updates both
+// when a new unpaid row is added and when you flip a Status to Paid.
 var SHARED_HEADERS = [
-  'Date', 'Time', 'Vendor', 'Total Amount', 'Category', 'Reason',
-  'Split Count', 'Per-Person Share', 'Your Share',
-  'Contacts Messaged', 'To Chase Manually', 'Source', 'Logged At'
+  'Date', 'Time', 'Vendor', 'Reason', 'Category', 'Total Expense',
+  'Person', 'Share', 'Status', 'Total Unpaid', 'Source', 'Logged At'
 ];
 
 function doPost(e) {
@@ -33,12 +34,17 @@ function doPost(e) {
       ]);
     } else if (data.type === 'shared') {
       var sheet = getOrCreateSheet_('Shared', SHARED_HEADERS);
-      sheet.appendRow([
-        data.date, data.time, data.vendor, Number(data.totalAmount),
-        data.category, data.reason, Number(data.numPeople),
-        Number(data.perPersonShare), Number(data.yourShare),
-        data.contacts, data.unreached, data.source, now
-      ]);
+      var people = data.people || [];
+      for (var i = 0; i < people.length; i++) {
+        var p = people[i];
+        sheet.appendRow([
+          data.date, data.time, data.vendor, data.reason, data.category,
+          Number(data.totalAmount), p.name, Number(p.share), 'Unpaid',
+          '', data.source, now
+        ]);
+        // Live outstanding total: sum of Share (col H) where Status (col I) = "Unpaid".
+        sheet.getRange(sheet.getLastRow(), 10).setFormula('=SUMIF(I:I,"Unpaid",H:H)');
+      }
     } else {
       return json_({ ok: false, error: 'unknown type: ' + data.type });
     }
