@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/sm_bg"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="18dp">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/debug_title"
+        android:textColor="@color/sm_text"
         android:textSize="20sp"
         android:textStyle="bold" />
 
@@ -16,9 +19,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/debug_hint"
-        android:textColor="#79747E"
+        android:textColor="@color/sm_text_muted"
         android:textSize="13sp"
-        android:layout_marginBottom="8dp" />
+        android:layout_marginTop="2dp"
+        android:layout_marginBottom="10dp" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -27,7 +31,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnRefresh"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            style="@style/Widget.SplitMate.Button.Outlined"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
@@ -35,7 +39,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnCopy"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            style="@style/Widget.SplitMate.Button.Outlined"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
@@ -44,25 +48,37 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnClear"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
+            style="@style/Widget.SplitMate.Button.Text"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:text="@string/clear" />
     </LinearLayout>
 
-    <ScrollView
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:layout_marginTop="8dp">
+        android:layout_marginTop="10dp"
+        app:cardBackgroundColor="@color/sm_surface"
+        app:cardCornerRadius="18dp"
+        app:cardElevation="0dp"
+        app:strokeColor="@color/sm_outline"
+        app:strokeWidth="1dp">
 
-        <TextView
-            android:id="@+id/tvLog"
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fontFamily="monospace"
-            android:textSize="12sp"
-            android:textIsSelectable="true" />
-    </ScrollView>
+            android:layout_height="match_parent"
+            android:padding="14dp">
+
+            <TextView
+                android:id="@+id/tvLog"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="monospace"
+                android:textColor="@color/sm_text"
+                android:textSize="12sp"
+                android:textIsSelectable="true" />
+        </ScrollView>
+    </com.google.android.material.card.MaterialCardView>
 </LinearLayout>

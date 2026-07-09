@@ -31,7 +31,9 @@
     <string name="new_payment">New payment</string>
     <string name="is_this">Is this a personal expense or should it be split?</string>
     <string name="personal_expense">Personal expense</string>
+    <string name="personal_sub">Just log it to my sheet</string>
     <string name="split_expense">Split with people</string>
+    <string name="split_sub">Divide it and message everyone</string>
     <string name="not_now">Not now</string>
     <string name="reason">Reason / note</string>
     <string name="category">Category</string>

@@ -73,9 +73,10 @@ class PaymentPromptActivity : AppCompatActivity() {
 
     private fun setupCategorySpinners() {
         val cats = resources.getStringArray(R.array.categories)
-        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, cats)
-        binding.spCategoryPersonal.adapter = adapter
-        binding.spCategorySplit.adapter = adapter
+        listOf(binding.spCategoryPersonal, binding.spCategorySplit).forEach { dropdown ->
+            dropdown.setSimpleItems(cats)
+            dropdown.setText(cats.first(), false)   // sensible default so it's never blank
+        }
     }
 
     // ---------------------------------------------------------------- section switching
@@ -119,7 +120,7 @@ class PaymentPromptActivity : AppCompatActivity() {
     private fun savePersonal() {
         val url = requireScriptUrl() ?: return
         val reason = binding.etReasonPersonal.text?.toString()?.trim().orEmpty()
-        val category = binding.spCategoryPersonal.selectedItem?.toString().orEmpty()
+        val category = binding.spCategoryPersonal.text?.toString().orEmpty()
         val (dateStr, timeStr) = dateTime()
 
         Toast.makeText(this, R.string.saving, Toast.LENGTH_SHORT).show()
@@ -250,7 +251,7 @@ class PaymentPromptActivity : AppCompatActivity() {
         }
 
         val reason = binding.etReasonSplit.text?.toString()?.trim().orEmpty()
-        val category = binding.spCategorySplit.selectedItem?.toString().orEmpty()
+        val category = binding.spCategorySplit.text?.toString().orEmpty()
         val share = perShare()
         val yourShare = if (binding.cbIncludeSelf.isChecked) share else 0.0
         val (dateStr, timeStr) = dateTime()

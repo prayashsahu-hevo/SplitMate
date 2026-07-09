@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Light theme — soft, low-contrast, easy on the eyes -->
+    <color name="sm_bg">#F4F5FB</color>
+    <color name="sm_surface">#FFFFFF</color>
+    <color name="sm_surface_variant">#EEF0F9</color>
+    <color name="sm_primary">#5B67CA</color>
+    <color name="sm_primary_container">#E4E7FB</color>
+    <color name="sm_on_primary">#FFFFFF</color>
+    <color name="sm_on_primary_container">#2A3078</color>
+    <color name="sm_text">#1B1D2A</color>
+    <color name="sm_text_muted">#6A6F88</color>
+    <color name="sm_outline">#E1E4F1</color>
+    <color name="sm_success">#2E9E6B</color>
+    <color name="sm_accent">#1FA79E</color>
+    <color name="sm_scrim">#99121218</color>
+</resources>

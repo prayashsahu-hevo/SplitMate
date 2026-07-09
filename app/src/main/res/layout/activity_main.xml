@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/sm_bg"
     android:fillViewport="true">
 
     <LinearLayout
@@ -11,134 +12,202 @@
         android:orientation="vertical"
         android:padding="20dp">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/app_name"
-            android:textSize="28sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/tagline"
-            android:textColor="#79747E"
-            android:layout_marginBottom="20dp" />
-
-        <!-- ===== Setup / permissions ===== -->
-        <TextView style="@style/SectionHeader" android:text="@string/setup" />
-
-        <TextView
-            android:id="@+id/tvNotifStatus"
-            style="@style/StatusRow"
-            android:text="@string/perm_notif" />
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnNotif"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        <!-- ===== App header ===== -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/grant_notif" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingVertical="8dp">
 
-        <TextView
-            android:id="@+id/tvOverlayStatus"
-            style="@style/StatusRow"
-            android:layout_marginTop="12dp"
-            android:text="@string/perm_overlay" />
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnOverlay"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="52dp"
+                android:layout_height="52dp"
+                app:cardBackgroundColor="@color/sm_primary_container"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp">
+                <ImageView
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_wallet"
+                    android:contentDescription="@null" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginStart="14dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/app_name"
+                    android:textColor="@color/sm_text"
+                    android:textSize="26sp"
+                    android:textStyle="bold" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/tagline"
+                    android:textColor="@color/sm_text_muted"
+                    android:textSize="14sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- ===== Setup card ===== -->
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/grant_overlay" />
+            android:layout_marginTop="20dp"
+            app:cardBackgroundColor="@color/sm_surface"
+            app:cardCornerRadius="22dp"
+            app:cardElevation="0dp"
+            app:strokeColor="@color/sm_outline"
+            app:strokeWidth="1dp">
 
-        <TextView
-            android:id="@+id/tvAccessibilityStatus"
-            style="@style/StatusRow"
-            android:layout_marginTop="12dp"
-            android:text="@string/perm_accessibility" />
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnAccessibility"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/grant_accessibility" />
-
-        <TextView
-            android:id="@+id/tvContactsStatus"
-            style="@style/StatusRow"
-            android:layout_marginTop="12dp"
-            android:text="@string/perm_contacts" />
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnContacts"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/grant_contacts" />
-
-        <!-- ===== Settings ===== -->
-        <TextView style="@style/SectionHeader" android:text="@string/settings"
-            android:layout_marginTop="28dp" />
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/hint_script_url"
-            app:helperText="@string/help_script_url">
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etScriptUrl"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textUri" />
-        </com.google.android.material.textfield.TextInputLayout>
+                android:orientation="vertical"
+                android:padding="18dp">
 
-        <com.google.android.material.textfield.TextInputLayout
+                <TextView style="@style/SectionHeader" android:text="@string/setup" />
+
+                <TextView
+                    android:id="@+id/tvNotifStatus"
+                    style="@style/StatusRow"
+                    android:text="@string/perm_notif" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnNotif"
+                    style="@style/Widget.SplitMate.Button.Outlined"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/grant_notif" />
+
+                <TextView
+                    android:id="@+id/tvOverlayStatus"
+                    style="@style/StatusRow"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/perm_overlay" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnOverlay"
+                    style="@style/Widget.SplitMate.Button.Outlined"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/grant_overlay" />
+
+                <TextView
+                    android:id="@+id/tvAccessibilityStatus"
+                    style="@style/StatusRow"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/perm_accessibility" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnAccessibility"
+                    style="@style/Widget.SplitMate.Button.Outlined"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/grant_accessibility" />
+
+                <TextView
+                    android:id="@+id/tvContactsStatus"
+                    style="@style/StatusRow"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/perm_contacts" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnContacts"
+                    style="@style/Widget.SplitMate.Button.Outlined"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/grant_contacts" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- ===== Settings card ===== -->
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:hint="@string/hint_own_name">
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etOwnName"
+            android:layout_marginTop="16dp"
+            app:cardBackgroundColor="@color/sm_surface"
+            app:cardCornerRadius="22dp"
+            app:cardElevation="0dp"
+            app:strokeColor="@color/sm_outline"
+            app:strokeWidth="1dp">
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textPersonName" />
-        </com.google.android.material.textfield.TextInputLayout>
+                android:orientation="vertical"
+                android:padding="18dp">
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:hint="@string/hint_own_wa"
-            app:helperText="@string/help_own_wa">
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etOwnWa"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="phone" />
-        </com.google.android.material.textfield.TextInputLayout>
+                <TextView style="@style/SectionHeader" android:text="@string/settings" />
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:hint="@string/hint_cc">
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etCc"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="number" />
-        </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/hint_script_url"
+                    app:helperText="@string/help_script_url">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etScriptUrl"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textUri" />
+                </com.google.android.material.textfield.TextInputLayout>
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnSaveSettings"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:paddingVertical="14dp"
-            android:text="@string/save_settings" />
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:hint="@string/hint_own_name">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etOwnName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textPersonName" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:hint="@string/hint_own_wa"
+                    app:helperText="@string/help_own_wa">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etOwnWa"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="phone" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:hint="@string/hint_cc">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etCc"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="number" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnSaveSettings"
+                    style="@style/Widget.SplitMate.Button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:text="@string/save_settings" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnTest"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
+            style="@style/Widget.SplitMate.Button.Text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
@@ -146,10 +215,9 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnDebugLog"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
+            style="@style/Widget.SplitMate.Button.Text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/open_debug_log" />
-
     </LinearLayout>
 </ScrollView>

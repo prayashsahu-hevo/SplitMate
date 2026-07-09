@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dark theme — deep slate (not pure black), gentle contrast -->
+    <color name="sm_bg">#121319</color>
+    <color name="sm_surface">#1C1E27</color>
+    <color name="sm_surface_variant">#262935</color>
+    <color name="sm_primary">#AAB2FF</color>
+    <color name="sm_primary_container">#2E3470</color>
+    <color name="sm_on_primary">#0F1230</color>
+    <color name="sm_on_primary_container">#DDE1FF</color>
+    <color name="sm_text">#ECEEF7</color>
+    <color name="sm_text_muted">#9BA0B6</color>
+    <color name="sm_outline">#313545</color>
+    <color name="sm_success">#4ECB8E</color>
+    <color name="sm_accent">#4FD0C7</color>
+    <color name="sm_scrim">#B3000005</color>
+</resources>

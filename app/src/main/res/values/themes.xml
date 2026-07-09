@@ -1,16 +1,28 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-    <style name="Theme.SplitMate" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
-        <item name="colorPrimary">#6750A4</item>
-        <item name="colorPrimaryVariant">#4F378B</item>
-        <item name="colorOnPrimary">#FFFFFF</item>
-        <item name="colorSecondary">#625B71</item>
-        <item name="colorOnSecondary">#FFFFFF</item>
+    <style name="Theme.SplitMate" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/sm_primary</item>
+        <item name="colorPrimaryVariant">@color/sm_primary</item>
+        <item name="colorOnPrimary">@color/sm_on_primary</item>
+        <item name="colorSecondary">@color/sm_accent</item>
+        <item name="colorSecondaryVariant">@color/sm_accent</item>
+        <item name="colorOnSecondary">@color/sm_on_primary</item>
+        <item name="android:colorBackground">@color/sm_bg</item>
+        <item name="colorSurface">@color/sm_surface</item>
+        <item name="colorOnSurface">@color/sm_text</item>
+        <item name="colorOnBackground">@color/sm_text</item>
+        <item name="colorError">#E5484D</item>
+        <item name="android:statusBarColor">@color/sm_bg</item>
+        <item name="android:navigationBarColor">@color/sm_bg</item>
+
+        <!-- Rounded everything -->
+        <item name="shapeAppearanceSmallComponent">@style/Shape.SplitMate.Small</item>
+        <item name="shapeAppearanceMediumComponent">@style/Shape.SplitMate.Medium</item>
+        <item name="shapeAppearanceLargeComponent">@style/Shape.SplitMate.Large</item>
     </style>
 
     <!-- Transparent theme for the pop-up so the UPI app shows through the scrim -->
-    <style name="Theme.SplitMate.Transparent" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <item name="colorPrimary">#6750A4</item>
+    <style name="Theme.SplitMate.Transparent" parent="Theme.SplitMate">
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowContentOverlay">@null</item>
@@ -18,21 +30,63 @@
         <item name="android:backgroundDimEnabled">false</item>
     </style>
 
+    <style name="Shape.SplitMate.Small" parent="ShapeAppearance.MaterialComponents.SmallComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">14dp</item>
+    </style>
+    <style name="Shape.SplitMate.Medium" parent="ShapeAppearance.MaterialComponents.MediumComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">22dp</item>
+    </style>
+    <style name="Shape.SplitMate.Large" parent="ShapeAppearance.MaterialComponents.LargeComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">30dp</item>
+    </style>
+
+    <!-- Text styles -->
     <style name="SectionHeader" parent="">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textAllCaps">true</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:textSize">13sp</item>
-        <item name="android:textColor">#6750A4</item>
-        <item name="android:letterSpacing">0.08</item>
-        <item name="android:layout_marginBottom">10dp</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@color/sm_primary</item>
+        <item name="android:letterSpacing">0.09</item>
+        <item name="android:layout_marginBottom">12dp</item>
     </style>
 
     <style name="StatusRow" parent="">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textSize">15sp</item>
-        <item name="android:layout_marginBottom">6dp</item>
+        <item name="android:textColor">@color/sm_text</item>
+        <item name="android:layout_marginBottom">8dp</item>
+    </style>
+
+    <!-- Primary filled button: tall + rounded -->
+    <style name="Widget.SplitMate.Button" parent="Widget.MaterialComponents.Button">
+        <item name="android:paddingTop">15dp</item>
+        <item name="android:paddingBottom">15dp</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:letterSpacing">0.01</item>
+        <item name="cornerRadius">16dp</item>
+    </style>
+
+    <style name="Widget.SplitMate.Button.Outlined" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="android:paddingTop">13dp</item>
+        <item name="android:paddingBottom">13dp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textSize">15sp</item>
+        <item name="strokeColor">@color/sm_outline</item>
+        <item name="android:textColor">@color/sm_text</item>
+        <item name="iconTint">@color/sm_primary</item>
+        <item name="cornerRadius">16dp</item>
+    </style>
+
+    <style name="Widget.SplitMate.Button.Text" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textColor">@color/sm_text_muted</item>
     </style>
 </resources>
