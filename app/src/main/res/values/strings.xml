@@ -49,10 +49,15 @@
     <string name="enter_people_count">Enter how many people to split with</string>
 
     <!-- send -->
-    <string name="tap_each_to_send">Tap each person to send on WhatsApp</string>
-    <string name="tap_send_hint">WhatsApp opens with the message pre-typed — just hit send, then come back for the next.</string>
+    <string name="tap_each_to_send">Send on WhatsApp</string>
+    <string name="tap_send_hint">Tap Send — each chat opens with the message ready. Hit send in WhatsApp, come back, and the next opens automatically.</string>
     <string name="message_person">Message %1$s</string>
-    <string name="send_self_reminder">Send myself the chase-list</string>
+    <string name="send_self_reminder">Yourself (chase-list)</string>
+    <string name="send_start">Send via WhatsApp</string>
+    <string name="send_ready_fmt">%1$d message(s) ready</string>
+    <string name="send_progress_fmt">Sending %1$d of %2$d · %3$s</string>
+    <string name="send_all_done">All %1$d sent ✅ — tap Done</string>
+    <string name="send_all_done_toast">All messages sent</string>
     <string name="done">Done</string>
 
     <!-- toasts -->

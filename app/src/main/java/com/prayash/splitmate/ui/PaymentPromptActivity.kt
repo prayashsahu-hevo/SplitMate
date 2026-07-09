@@ -43,6 +43,13 @@ class PaymentPromptActivity : AppCompatActivity() {
     private var allContacts: List<Contact> = emptyList()
     private val customNameFields = mutableListOf<EditText>()
 
+    // Auto-advance send queue: each entry is (label, action-that-opens-a-chat).
+    private val sendQueue = mutableListOf<Pair<String, () -> Unit>>()
+    private var sendIndex = 0
+    private var sendingActive = false
+    private var pendingAdvance = false
+    private var sendProgressView: android.widget.TextView? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityPaymentPromptBinding.inflate(layoutInflater)
@@ -59,6 +66,16 @@ class PaymentPromptActivity : AppCompatActivity() {
         setupCategorySpinners()
         wireButtons()
         showChoose()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // When the user returns from a WhatsApp chat mid-send, auto-open the next one.
+        if (sendingActive && pendingAdvance) {
+            pendingAdvance = false
+            sendIndex++
+            openCurrentSend()
+        }
     }
 
     // ---------------------------------------------------------------- header
@@ -265,33 +282,74 @@ class PaymentPromptActivity : AppCompatActivity() {
             }
         }.start()
 
-        buildSendButtons(reason, share, customNames)
+        buildSendQueue(reason, share, customNames)
         showSend()
     }
 
-    /** Build a "Message X" button per contact + a self-reminder button for the unreached. */
-    private fun buildSendButtons(reason: String, share: Double, customNames: List<String>) {
-        val container = binding.containerSendButtons
-        container.removeAllViews()
+    /** Build the ordered send queue (one entry per contact + a self-reminder for the unreached). */
+    private fun buildSendQueue(reason: String, share: Double, customNames: List<String>) {
+        sendQueue.clear()
+        sendIndex = 0
+        sendingActive = false
+        pendingAdvance = false
 
         selectedContacts.forEach { contact ->
             val msg = MessageTemplates.forFriend(
                 contact.name, prefs.ownName, payment.vendor, reason, payment.amount, share
             )
             val phone = WhatsAppHelper.normalize(contact.number, prefs.countryCode)
-            container.addView(sendButton(getString(R.string.message_person, contact.name)) {
-                WhatsAppHelper.openChat(this, phone, msg)
-            })
+            sendQueue.add(contact.name to { WhatsAppHelper.openChat(this, phone, msg) })
         }
 
         if (customNames.isNotEmpty()) {
             val selfMsg = MessageTemplates.forSelf(customNames, payment.vendor, reason, share)
             val ownWa = WhatsAppHelper.normalize(prefs.ownWhatsApp, prefs.countryCode)
-            container.addView(sendButton(getString(R.string.send_self_reminder)) {
+            sendQueue.add(getString(R.string.send_self_reminder) to {
                 if (ownWa.length >= 10) WhatsAppHelper.openChat(this, ownWa, selfMsg)
                 else WhatsAppHelper.openShare(this, selfMsg)
             })
         }
+
+        renderSendStart()
+    }
+
+    /** Initial send-screen state: a progress line + a single "Send via WhatsApp" button. */
+    private fun renderSendStart() {
+        val container = binding.containerSendButtons
+        container.removeAllViews()
+
+        val progress = android.widget.TextView(this).apply {
+            text = getString(R.string.send_ready_fmt, sendQueue.size)
+            setTextColor(ContextCompat.getColor(this@PaymentPromptActivity, R.color.sm_text))
+            textSize = 15f
+        }
+        sendProgressView = progress
+        container.addView(progress)
+
+        container.addView(sendButton(getString(R.string.send_start)) { startSending() })
+    }
+
+    private fun startSending() {
+        if (sendQueue.isEmpty()) { finish(); return }
+        sendingActive = true
+        sendIndex = 0
+        openCurrentSend()
+    }
+
+    /** Open the chat at [sendIndex]; onResume advances to the next when the user returns. */
+    private fun openCurrentSend() {
+        if (sendIndex >= sendQueue.size) { finishSending(); return }
+        val (label, action) = sendQueue[sendIndex]
+        sendProgressView?.text = getString(R.string.send_progress_fmt, sendIndex + 1, sendQueue.size, label)
+        pendingAdvance = true
+        action.invoke()
+    }
+
+    private fun finishSending() {
+        sendingActive = false
+        pendingAdvance = false
+        sendProgressView?.text = getString(R.string.send_all_done, sendQueue.size)
+        Toast.makeText(this, R.string.send_all_done_toast, Toast.LENGTH_SHORT).show()
     }
 
     private fun sendButton(label: String, onClick: () -> Unit): MaterialButton {
