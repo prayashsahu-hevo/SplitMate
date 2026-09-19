@@ -98,6 +98,7 @@
     <string name="action_split">Split</string>
     <string name="action_log_it">Log it</string>
     <string name="logged_personal">Logged as personal</string>
+    <string name="test_fired">Fired 2 test prompts \u2014 check your notification shade</string>
     <string name="usage_rationale">SplitMate needs Usage access to notice when you have just used a UPI app, so it can offer to log the payment. It only sees which app was open and when \u2014 never what is on your screen.</string>
     <string name="copied">Copied to clipboard</string>
 

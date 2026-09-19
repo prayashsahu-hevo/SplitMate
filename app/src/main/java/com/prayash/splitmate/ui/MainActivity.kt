@@ -12,11 +12,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.prayash.splitmate.R
 import com.prayash.splitmate.data.Payment
+import com.prayash.splitmate.data.NotifLog
 import com.prayash.splitmate.data.Prefs
 import com.prayash.splitmate.data.UpiApps
 import com.prayash.splitmate.databinding.ActivityMainBinding
 import com.prayash.splitmate.service.PaymentNotificationListener
 import com.prayash.splitmate.service.UpiUsageWatcher
+import com.prayash.splitmate.util.PromptNotifier
 
 /**
  * Setup dashboard: grant the accesses detection needs, and edit settings.
@@ -140,18 +142,27 @@ class MainActivity : AppCompatActivity() {
 
     // -------------------------------------------------- test
 
-    /** Fire a fake payment through the same prompt UI so you can rehearse without paying. */
+    /**
+     * Fires the real prompt notification, exactly as a detected payment would.
+     *
+     * This bisects a silent detection. If these two notifications appear, the notification
+     * half works and the problem is upstream in usage-event detection; if they do not, the
+     * problem is the notification itself and detection is irrelevant.
+     */
     private fun launchTestPopup() {
-        val demo = Payment(
+        val known = Payment(
             amount = 450.0,
             vendor = "Demo Cafe",
             source = "Google Pay",
             timestampMillis = System.currentTimeMillis(),
             rawText = "You paid ₹450 to Demo Cafe"
         )
-        startActivity(
-            Intent(this, PaymentPromptActivity::class.java)
-                .putExtra(PaymentPromptActivity.EXTRA_PAYMENT, demo)
-        )
+        // The known-amount case: [Personal] / [Split] actions.
+        PromptNotifier.promptForPayment(this, "Google Pay", known, System.currentTimeMillis())
+        // The Paytm case: nothing announced the amount, so the prompt has to ask.
+        PromptNotifier.promptForPayment(this, "Paytm", null, System.currentTimeMillis())
+
+        NotifLog.event(this, "Test prompts fired from dashboard", alsoMoney = true)
+        Toast.makeText(this, R.string.test_fired, Toast.LENGTH_LONG).show()
     }
 }
