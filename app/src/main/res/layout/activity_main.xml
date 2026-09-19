@@ -72,9 +72,16 @@
 
                 <TextView style="@style/SectionHeader" android:text="@string/setup" />
 
+                <!-- Required: every prompt is a notification. -->
+                <TextView
+                    android:id="@+id/tvPostNotifStatus"
+                    style="@style/StatusRow"
+                    android:text="@string/perm_post_notif" />
+
                 <!-- Required: this is what makes the prompt fire for every UPI app. -->
                 <TextView
                     android:id="@+id/tvUsageStatus"
+                    android:layout_marginTop="16dp"
                     style="@style/StatusRow"
                     android:text="@string/perm_usage" />
                 <com.google.android.material.button.MaterialButton

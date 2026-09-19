@@ -5,6 +5,7 @@
     <!-- setup -->
     <string name="setup">Setup</string>
     <string name="settings">Settings</string>
+    <string name="perm_post_notif">Show notifications (the prompt itself)</string>
     <string name="perm_usage">Usage access (detect when you use a UPI app)</string>
     <string name="perm_notifications">Notification access (read the amount — optional)</string>
     <string name="perm_contacts">Contacts access (pick people to split with)</string>

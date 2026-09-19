@@ -35,6 +35,7 @@ class MainActivity : AppCompatActivity() {
         prefs = Prefs(this)
 
         loadSettings()
+        ensureNotificationPermission()
 
         binding.btnNotif.setOnClickListener {
             startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
@@ -80,7 +81,26 @@ class MainActivity : AppCompatActivity() {
 
     // -------------------------------------------------- permission status
 
+    /**
+     * Every prompt is a notification now, so without this the app looks completely dead on
+     * Android 13+, where the permission is denied by default.
+     */
+    private fun ensureNotificationPermission() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 2)
+        }
+    }
+
+    private fun canPostNotifications(): Boolean =
+        Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+            ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) ==
+            PackageManager.PERMISSION_GRANTED
+
     private fun refreshStatuses() {
+        mark(binding.tvPostNotifStatus, R.string.perm_post_notif, canPostNotifications())
         mark(binding.tvUsageStatus, R.string.perm_usage, UpiUsageWatcher.hasUsageAccess(this))
         mark(binding.tvNotifStatus, R.string.perm_notifications, isNotifListenerEnabled())
         mark(binding.tvContactsStatus, R.string.perm_contacts, hasContacts())
