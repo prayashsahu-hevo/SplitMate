@@ -1,31 +1,27 @@
 package com.prayash.splitmate.service
 
 import android.app.Notification
-import android.content.Intent
 import android.content.pm.PackageManager
-import android.provider.Settings
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
-import android.util.Log
 import com.prayash.splitmate.data.NotifLog
-import com.prayash.splitmate.ui.PaymentPromptActivity
+import com.prayash.splitmate.data.RecentPayments
 
 /**
- * Listens to every posted notification and, when one looks like an outgoing UPI payment
- * from a supported app, launches [PaymentPromptActivity] on top of whatever is on screen.
+ * Reads notifications to recover the *amount* of a payment.
  *
- * Launching an Activity from the background requires the "Draw over other apps"
- * (SYSTEM_ALERT_WINDOW) permission on modern Android — the app asks for it during setup.
+ * This is no longer the trigger — [UpiUsageWatcher] is, because it fires for every UPI app
+ * including ones that post nothing. This service's only job is to parse an amount when some
+ * app does bother to announce the payment (the UPI app itself, or the user's bank) and park
+ * it in [RecentPayments] for the watcher to claim.
+ *
+ * It never sees the screen: the OS hands it notification objects only.
  */
 class PaymentNotificationListener : NotificationListenerService() {
 
-    // Debounce: UPI apps often post/update the same notification several times.
-    private var lastKey: String? = null
-    private var lastAt = 0L
-
     override fun onListenerConnected() {
         super.onListenerConnected()
-        NotifLog.event(this, "Listener connected — receiving notifications")
+        NotifLog.event(this, "Notification listener connected")
     }
 
     override fun onNotificationPosted(sbn: StatusBarNotification) {
@@ -36,45 +32,24 @@ class PaymentNotificationListener : NotificationListenerService() {
         val title = extras?.getCharSequence(Notification.EXTRA_TITLE)?.toString()
         val text = extras?.getCharSequence(Notification.EXTRA_TEXT)?.toString()
         val big = extras?.getCharSequence(Notification.EXTRA_BIG_TEXT)?.toString()
+        val body = big ?: text
 
-        val payment = PaymentParser.parse(pkg, title, big ?: text, sbn.postTime)
+        val payment = PaymentParser.parse(appLabel(pkg), title, body, sbn.postTime)
 
-        // Survey: record EVERY notification, from EVERY package, tagged with a readable app
-        // name. Money-related ones also land in the low-volume money log so they survive.
-        NotifLog.add(this, pkg, title, big ?: text, matched = payment != null, label = appLabel(pkg))
+        NotifLog.add(this, pkg, title, body, matched = payment != null, label = appLabel(pkg))
 
-        if (payment == null) return
-
-        // Debounce repeated posts of the same logical payment within 8 seconds.
-        val key = "${pkg}|${payment.amount}|${payment.vendor}"
-        val now = System.currentTimeMillis()
-        if (key == lastKey && now - lastAt < 8_000) return
-        lastKey = key
-        lastAt = now
-
-        if (!Settings.canDrawOverlays(this)) {
-            Log.w(TAG, "Overlay permission missing; cannot show prompt for $payment")
-            return
+        if (payment != null) {
+            // Park it; the usage watcher claims it when the UPI session ends.
+            RecentPayments.record(payment)
         }
-
-        Log.d(TAG, "Detected payment: $payment")
-        val intent = Intent(this, PaymentPromptActivity::class.java).apply {
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-            putExtra(PaymentPromptActivity.EXTRA_PAYMENT, payment)
-        }
-        startActivity(intent)
     }
 
     override fun onNotificationRemoved(sbn: StatusBarNotification) { /* no-op */ }
 
-    /** Human-readable app name for a package, so bank apps are identifiable in the log. */
+    /** Human-readable app name, used as the payment's source and to identify bank apps. */
     private fun appLabel(pkg: String): String = try {
         packageManager.getApplicationLabel(packageManager.getApplicationInfo(pkg, 0)).toString()
     } catch (e: PackageManager.NameNotFoundException) {
         pkg
-    }
-
-    companion object {
-        private const val TAG = "SplitMateListener"
     }
 }

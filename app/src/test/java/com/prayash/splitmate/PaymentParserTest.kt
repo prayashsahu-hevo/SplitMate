@@ -6,107 +6,121 @@ import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Test
 
-private const val GPAY = "com.google.android.apps.nbu.paisa.user"
-private const val PAYTM = "net.one97.paytm"
-
 /**
- * JVM unit tests for the notification parser — these run on the Mac (no device needed),
- * so the risky parsing logic is verified before installing anything.
+ * The parser no longer decides *whether* a payment happened — the usage watcher does that.
+ * Its job is to recover the amount, from whichever app announced it: the UPI app, or the bank.
  *
- * NOTE: real UPI wordings are added here as we capture them from the on-device debug log,
- * which locks each confirmed format against regressions.
+ * So the tests that matter are: does it get the right number out of real wordings, and does it
+ * stay quiet on anything that is not a completed outgoing payment.
  */
 class PaymentParserTest {
 
+    private val now = 1_700_000_000_000L
+
+    private fun parse(text: String, source: String = "Google Pay") =
+        PaymentParser.parse(source, null, text, now)
+
+    // ------------------------------------------------ UPI app wordings
+
     @Test
-    fun gpay_paid_to_person() {
-        val p = PaymentParser.parse(GPAY, "Google Pay", "You paid ₹500 to John Doe", 1_000L)
+    fun `gpay you paid`() {
+        val p = parse("You paid ₹500 to Rahul Sharma")
         assertNotNull(p)
         assertEquals(500.0, p!!.amount, 0.001)
-        assertEquals("John Doe", p.vendor)
-        assertEquals("Google Pay", p.source)
+        assertEquals("Rahul Sharma", p.vendor)
     }
 
     @Test
-    fun gpay_paid_with_decimals_and_comma() {
-        val p = PaymentParser.parse(GPAY, "Google Pay", "You paid ₹1,250.50 to Big Bazaar on 7 Jul", 1L)
-        assertNotNull(p)
+    fun `amount with comma and decimals`() {
+        val p = parse("Paid Rs.1,250.50 to Big Bazaar")
         assertEquals(1250.50, p!!.amount, 0.001)
         assertEquals("Big Bazaar", p.vendor)
     }
 
     @Test
-    fun paytm_rs_paid_to_merchant() {
-        val p = PaymentParser.parse(PAYTM, "Paytm", "Rs.300 paid to Coffee House successfully", 1L)
-        assertNotNull(p)
-        assertEquals(300.0, p!!.amount, 0.001)
-        assertEquals("Coffee House", p.vendor)
-        assertEquals("Paytm", p.source)
+    fun `amount before the verb`() {
+        val p = parse("₹250 sent to Anil Kumar successfully")
+        assertEquals(250.0, p!!.amount, 0.001)
+        assertEquals("Anil Kumar", p.vendor)
     }
 
     @Test
-    fun paytm_rupee_symbol_paid() {
-        val p = PaymentParser.parse(PAYTM, "Paytm", "₹150 paid to Auto Driver", 1L)
-        assertNotNull(p)
-        assertEquals(150.0, p!!.amount, 0.001)
+    fun `inr prefix`() {
+        assertEquals(99.0, parse("INR 99 debited for UPI payment")!!.amount, 0.001)
     }
 
-    @Test
-    fun debited_wording_is_outgoing() {
-        val p = PaymentParser.parse(PAYTM, "Paytm", "₹99 debited from your account and sent to Zomato", 1L)
-        assertNotNull(p)
-        assertEquals(99.0, p!!.amount, 0.001)
-    }
+    // ------------------------------------------------ bank wordings
+    // These matter most: the bank is what covers UPI apps that post nothing themselves.
 
     @Test
-    fun incoming_money_is_ignored() {
-        assertNull(PaymentParser.parse(GPAY, "Google Pay", "You received ₹500 from Alice", 1L))
-        assertNull(PaymentParser.parse(PAYTM, "Paytm", "₹200 credited to your account", 1L))
-    }
-
-    @Test
-    fun unsupported_package_is_ignored() {
-        assertNull(PaymentParser.parse("com.whatsapp", "WhatsApp", "You paid ₹500 to Bob", 1L))
-    }
-
-    @Test
-    fun promo_without_payment_verb_is_ignored() {
-        assertNull(PaymentParser.parse(PAYTM, "Paytm", "Get ₹50 cashback on your next recharge!", 1L))
-    }
-
-    // ---- screen parsing (accessibility service) ----
-
-    @Test
-    fun screen_paytm_success() {
-        val screen = "Payment Successful | ₹500 | Paid to Coffee House | UPI Ref 123456 | Done"
-        val p = PaymentParser.parseScreen(PAYTM, screen, 1L)
+    fun `bank debit picks the amount not the closing balance`() {
+        val p = parse("Rs 500 debited from your account. Bal Rs 12,340", source = "HDFC Bank")
         assertNotNull(p)
         assertEquals(500.0, p!!.amount, 0.001)
-        assertEquals("Coffee House", p.vendor)
-        assertEquals("Paytm", p.source)
     }
 
     @Test
-    fun screen_gpay_success() {
-        val screen = "₹1,200 | Completed | To Rahul Sharma | 8 Jul, 4:55 pm"
-        val p = PaymentParser.parseScreen(GPAY, screen, 1L)
-        assertNotNull(p)
-        assertEquals(1200.0, p!!.amount, 0.001)
+    fun `bank debited by with no currency token`() {
+        val p = parse("A/c XX1234 debited by 750.00 on 20-09-26", source = "ICICI Bank")
+        assertEquals(750.0, p!!.amount, 0.001)
     }
 
     @Test
-    fun screen_enter_amount_is_ignored() {
-        // No success marker yet -> should not fire.
-        assertNull(PaymentParser.parseScreen(PAYTM, "Enter amount | ₹500 | Pay", 1L))
+    fun `payee recovered from a upi reference string`() {
+        val p = parse(
+            "A/c XX1234 debited by 300.00 UPI/P2P/512345678901/RAHUL KUMAR",
+            source = "Axis Bank"
+        )
+        assertEquals(300.0, p!!.amount, 0.001)
+        assertEquals("RAHUL KUMAR", p.vendor)
     }
 
     @Test
-    fun screen_incoming_is_ignored() {
-        assertNull(PaymentParser.parseScreen(PAYTM, "Payment received | ₹500 | from Alice", 1L))
+    fun `source is carried through so the watcher can prefer the upi app over the bank`() {
+        assertEquals("Paytm", parse("Paid ₹40 to Chai Point", source = "Paytm")!!.source)
+    }
+
+    // ------------------------------------------------ must stay quiet
+
+    @Test
+    fun `incoming money is ignored`() {
+        assertNull(parse("You received ₹500 from Rahul"))
+        assertNull(parse("A/c credited by Rs 2000", source = "SBI"))
     }
 
     @Test
-    fun screen_unsupported_package_is_ignored() {
-        assertNull(PaymentParser.parseScreen("com.random.app", "Payment Successful ₹500 to X", 1L))
+    fun `payment requests are ignored`() {
+        assertNull(parse("Rahul is requesting ₹500"))
+        assertNull(parse("Payment request of ₹200 from Anil"))
+    }
+
+    @Test
+    fun `failed and pending payments are ignored`() {
+        assertNull(parse("Your payment of ₹500 failed"))
+        assertNull(parse("Payment of ₹500 is pending"))
+        assertNull(parse("Payment of ₹500 was declined"))
+    }
+
+    @Test
+    fun `cashback and refunds are ignored`() {
+        assertNull(parse("You got ₹50 cashback"))
+        assertNull(parse("Refund of ₹120 paid to your account"))
+    }
+
+    @Test
+    fun `text with no amount is ignored`() {
+        assertNull(parse("You paid Rahul"))
+    }
+
+    @Test
+    fun `ordinary chat is ignored`() {
+        assertNull(parse("Rahul: I sent you the photos", source = "WhatsApp"))
+        assertNull(parse("3 new messages", source = "WhatsApp"))
+    }
+
+    @Test
+    fun `blank input is ignored`() {
+        assertNull(PaymentParser.parse("Google Pay", null, null, now))
+        assertNull(PaymentParser.parse("Google Pay", "", "   ", now))
     }
 }

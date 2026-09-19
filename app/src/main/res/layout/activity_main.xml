@@ -72,40 +72,30 @@
 
                 <TextView style="@style/SectionHeader" android:text="@string/setup" />
 
+                <!-- Required: this is what makes the prompt fire for every UPI app. -->
+                <TextView
+                    android:id="@+id/tvUsageStatus"
+                    style="@style/StatusRow"
+                    android:text="@string/perm_usage" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnUsage"
+                    style="@style/Widget.SplitMate.Button.Outlined"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/grant_usage" />
+
+                <!-- Optional: only fills in the amount automatically. -->
                 <TextView
                     android:id="@+id/tvNotifStatus"
                     style="@style/StatusRow"
-                    android:text="@string/perm_notif" />
+                    android:layout_marginTop="16dp"
+                    android:text="@string/perm_notifications" />
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnNotif"
                     style="@style/Widget.SplitMate.Button.Outlined"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/grant_notif" />
-
-                <TextView
-                    android:id="@+id/tvOverlayStatus"
-                    style="@style/StatusRow"
-                    android:layout_marginTop="16dp"
-                    android:text="@string/perm_overlay" />
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnOverlay"
-                    style="@style/Widget.SplitMate.Button.Outlined"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/grant_overlay" />
-
-                <TextView
-                    android:id="@+id/tvAccessibilityStatus"
-                    style="@style/StatusRow"
-                    android:layout_marginTop="16dp"
-                    android:text="@string/perm_accessibility" />
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnAccessibility"
-                    style="@style/Widget.SplitMate.Button.Outlined"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/grant_accessibility" />
+                    android:text="@string/grant_notifications" />
 
                 <TextView
                     android:id="@+id/tvContactsStatus"

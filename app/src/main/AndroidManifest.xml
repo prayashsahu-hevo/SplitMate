@@ -1,24 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Read incoming UPI payment notifications -->
-    <!-- (BIND_NOTIFICATION_LISTENER_SERVICE is declared on the service itself) -->
+    <!--
+      Detection needs exactly two special accesses, both granted in Settings and both
+      explained in-app before we send the user there:
 
-    <!-- Draw the payment prompt over other apps + launch it from the background -->
-    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+      1. Usage access — tells us WHICH app was in the foreground and WHEN. Never screen
+         content. This is the trigger, and it is the only one that works for UPI apps that
+         post no notification for outgoing payments.
+      2. Notification access — recovers the AMOUNT when the UPI app or the bank announces it.
+         Optional: without it the prompt still fires, the user just types the amount.
+    -->
+    <uses-permission
+        android:name="android.permission.PACKAGE_USAGE_STATS"
+        tools:ignore="ProtectedPermissions" />
 
-    <!-- Read contacts for the split picker -->
+    <!-- Keeps the usage watcher alive so the prompt fires promptly after a payment. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <!-- The prompt itself, and the watcher's quiet ongoing notification. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!-- Read contacts for the split picker. Requested only when the user first splits. -->
     <uses-permission android:name="android.permission.READ_CONTACTS" />
 
-    <!-- POST rows to the Google Apps Script endpoint -->
+    <!-- POST rows to the Google Apps Script endpoint. -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
-    <!-- Post a heads-up notification as a fallback trigger -->
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-
-    <!-- Needed to resolve/launch WhatsApp via package name on Android 11+ -->
     <queries>
+        <!-- Discover every installed UPI app: NPCI requires them all to handle upi://pay.
+             This is what makes the app work on any phone without a hardcoded app list. -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="upi" />
+        </intent>
+        <!-- Resolve/launch WhatsApp by package name on Android 11+. -->
         <package android:name="com.whatsapp" />
         <package android:name="com.whatsapp.w4b" />
     </queries>
@@ -45,7 +65,8 @@
             android:exported="false"
             android:label="@string/debug_title" />
 
-        <!-- The pop-up shown after a payment. Transparent, appears over the UPI app. -->
+        <!-- Opened from the prompt notification. No longer drawn over other apps, so
+             SYSTEM_ALERT_WINDOW is no longer needed. -->
         <activity
             android:name=".ui.PaymentPromptActivity"
             android:exported="false"
@@ -54,21 +75,17 @@
             android:taskAffinity=""
             android:theme="@style/Theme.SplitMate.Transparent" />
 
-        <!-- Accessibility service: reads the UPI payment-success screen in real time -->
+        <!-- Fires the prompt when a UPI app session ends. Works for every UPI app. -->
         <service
-            android:name=".service.PaymentAccessibilityService"
+            android:name=".service.UpiUsageWatcher"
             android:exported="false"
-            android:label="@string/app_name"
-            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
-            <intent-filter>
-                <action android:name="android.accessibilityservice.AccessibilityService" />
-            </intent-filter>
-            <meta-data
-                android:name="android.accessibilityservice"
-                android:resource="@xml/accessibility_service_config" />
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Detects when a UPI payment app is used so the user can log and split the payment immediately." />
         </service>
 
-        <!-- Notification listener that detects UPI payments (bonus for apps that notify) -->
+        <!-- Recovers the payment amount from notifications. Never reads the screen. -->
         <service
             android:name=".service.PaymentNotificationListener"
             android:exported="false"
@@ -78,6 +95,20 @@
                 <action android:name="android.service.notification.NotificationListenerService" />
             </intent-filter>
         </service>
+
+        <!-- One-tap "Personal" straight from the prompt notification. -->
+        <receiver
+            android:name=".service.QuickLogReceiver"
+            android:exported="false" />
+
+        <!-- Restart the watcher after a reboot. -->
+        <receiver
+            android:name=".service.BootReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
 
     </application>
 </manifest>

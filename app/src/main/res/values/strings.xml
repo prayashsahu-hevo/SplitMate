@@ -5,15 +5,12 @@
     <!-- setup -->
     <string name="setup">Setup</string>
     <string name="settings">Settings</string>
-    <string name="perm_notif">Notification access (bonus payment detection)</string>
-    <string name="perm_overlay">Display over other apps (show the prompt)</string>
-    <string name="perm_accessibility">Accessibility (detect payments in real time)</string>
+    <string name="perm_usage">Usage access (detect when you use a UPI app)</string>
+    <string name="perm_notifications">Notification access (read the amount — optional)</string>
     <string name="perm_contacts">Contacts access (pick people to split with)</string>
-    <string name="grant_notif">Open notification-access settings</string>
-    <string name="grant_overlay">Open display-over-apps settings</string>
-    <string name="grant_accessibility">Open accessibility settings</string>
+    <string name="grant_usage">Open usage-access settings</string>
+    <string name="grant_notifications">Open notification-access settings</string>
     <string name="grant_contacts">Grant contacts access</string>
-    <string name="accessibility_desc">Detects when you complete a payment in Paytm or Google Pay, so SplitMate can pop up to log or split it. Only reads the screens of those two apps.</string>
     <string name="already_granted">Already granted</string>
 
     <!-- settings fields -->
@@ -84,6 +81,23 @@
     <string name="show_money_only">Showing: money only</string>
     <string name="show_all">Showing: all</string>
     <string name="share">Share</string>
+
+    <!-- usage watcher + prompt notification -->
+    <string name="channel_watcher">Payment detection</string>
+    <string name="channel_watcher_desc">A silent ongoing notification Android requires while SplitMate watches for UPI app use.</string>
+    <string name="watcher_title">SplitMate is watching for payments</string>
+    <string name="watcher_text">Sees which app you open, never your screen.</string>
+    <string name="channel_prompt">Payment prompts</string>
+    <string name="channel_prompt_desc">Asks you to log a payment right after you make one.</string>
+    <string name="prompt_known_title">You paid %1$s</string>
+    <string name="prompt_known_text">%1$s \u00b7 via %2$s</string>
+    <string name="prompt_unknown_title">Paid something in %1$s?</string>
+    <string name="prompt_unknown_text">Tap to log it and split if needed.</string>
+    <string name="action_personal">Personal</string>
+    <string name="action_split">Split</string>
+    <string name="action_log_it">Log it</string>
+    <string name="logged_personal">Logged as personal</string>
+    <string name="usage_rationale">SplitMate needs Usage access to notice when you have just used a UPI app, so it can offer to log the payment. It only sees which app was open and when \u2014 never what is on your screen.</string>
     <string name="copied">Copied to clipboard</string>
 
     <string-array name="categories">

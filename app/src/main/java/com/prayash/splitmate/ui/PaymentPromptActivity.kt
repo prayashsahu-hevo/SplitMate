@@ -62,10 +62,20 @@ class PaymentPromptActivity : AppCompatActivity() {
             finish(); return
         }
 
+        // Dismiss the prompt notification that opened us.
+        intent.getIntExtra(EXTRA_NOTIF_ID, -1).takeIf { it >= 0 }?.let { id ->
+            (getSystemService(NOTIFICATION_SERVICE) as android.app.NotificationManager).cancel(id)
+        }
+
         bindHeader()
         setupCategorySpinners()
         wireButtons()
         showChoose()
+
+        // Nothing told us the amount (the UPI app posted no notification) — ask for it first.
+        if (payment.amount <= 0.0) {
+            binding.etAmount.requestFocus()
+        }
     }
 
     override fun onResume() {
@@ -392,13 +402,20 @@ class PaymentPromptActivity : AppCompatActivity() {
     private fun currentAmount(): Double =
         binding.etAmount.text?.toString()?.trim()?.toDoubleOrNull()?.takeIf { it > 0 } ?: payment.amount
 
-    private fun amountToField(a: Double): String =
-        if (a % 1.0 == 0.0) a.toLong().toString() else "%.2f".format(a)
+    /** An amount of 0.0 means "not detected" — leave the field blank so the user fills it. */
+    private fun amountToField(a: Double): String = when {
+        a <= 0.0 -> ""
+        a % 1.0 == 0.0 -> a.toLong().toString()
+        else -> "%.2f".format(a)
+    }
 
     private fun dp(v: Int): Int = (v * resources.displayMetrics.density).toInt()
 
     companion object {
         const val EXTRA_PAYMENT = "extra_payment"
+
+        /** Id of the prompt notification that opened us, so it can be dismissed. */
+        const val EXTRA_NOTIF_ID = "extra_notif_id"
         private const val REQ_CONTACTS = 101
     }
 }

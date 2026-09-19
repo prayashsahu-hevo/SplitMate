@@ -4,7 +4,6 @@ import android.Manifest
 import android.content.ComponentName
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
@@ -15,11 +14,14 @@ import com.prayash.splitmate.R
 import com.prayash.splitmate.data.Payment
 import com.prayash.splitmate.data.Prefs
 import com.prayash.splitmate.databinding.ActivityMainBinding
-import com.prayash.splitmate.service.PaymentAccessibilityService
 import com.prayash.splitmate.service.PaymentNotificationListener
+import com.prayash.splitmate.service.UpiUsageWatcher
 
 /**
- * Setup dashboard: check/grant the three permissions the app needs and edit settings.
+ * Setup dashboard: grant the accesses detection needs, and edit settings.
+ *
+ * Usage access is the only required one — it is what makes the prompt fire for every UPI app.
+ * Notification access is optional and only improves the result, by filling in the amount.
  */
 class MainActivity : AppCompatActivity() {
 
@@ -37,16 +39,9 @@ class MainActivity : AppCompatActivity() {
         binding.btnNotif.setOnClickListener {
             startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
         }
-        binding.btnOverlay.setOnClickListener {
-            startActivity(
-                Intent(
-                    Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                    Uri.parse("package:$packageName")
-                )
-            )
-        }
-        binding.btnAccessibility.setOnClickListener {
-            startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+        binding.btnUsage.setOnClickListener {
+            Toast.makeText(this, R.string.usage_rationale, Toast.LENGTH_LONG).show()
+            startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS))
         }
         binding.btnContacts.setOnClickListener {
             if (!hasContacts()) requestPermissions(arrayOf(Manifest.permission.READ_CONTACTS), 1)
@@ -62,6 +57,8 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         refreshStatuses()
+        // Start (or restart) the watcher as soon as usage access exists.
+        if (UpiUsageWatcher.hasUsageAccess(this)) UpiUsageWatcher.start(this)
     }
 
     // -------------------------------------------------- settings
@@ -84,18 +81,9 @@ class MainActivity : AppCompatActivity() {
     // -------------------------------------------------- permission status
 
     private fun refreshStatuses() {
-        mark(binding.tvNotifStatus, R.string.perm_notif, isNotifListenerEnabled())
-        mark(binding.tvOverlayStatus, R.string.perm_overlay, Settings.canDrawOverlays(this))
-        mark(binding.tvAccessibilityStatus, R.string.perm_accessibility, isAccessibilityEnabled())
+        mark(binding.tvUsageStatus, R.string.perm_usage, UpiUsageWatcher.hasUsageAccess(this))
+        mark(binding.tvNotifStatus, R.string.perm_notifications, isNotifListenerEnabled())
         mark(binding.tvContactsStatus, R.string.perm_contacts, hasContacts())
-    }
-
-    private fun isAccessibilityEnabled(): Boolean {
-        val flat = Settings.Secure.getString(
-            contentResolver, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
-        ) ?: return false
-        val cn = ComponentName(this, PaymentAccessibilityService::class.java)
-        return flat.split(":").any { ComponentName.unflattenFromString(it) == cn }
     }
 
     private fun mark(view: android.widget.TextView, labelRes: Int, granted: Boolean) {
@@ -119,10 +107,6 @@ class MainActivity : AppCompatActivity() {
 
     /** Fire a fake payment through the same prompt UI so you can rehearse without paying. */
     private fun launchTestPopup() {
-        if (!Settings.canDrawOverlays(this)) {
-            Toast.makeText(this, R.string.grant_overlay, Toast.LENGTH_LONG).show()
-            return
-        }
         val demo = Payment(
             amount = 450.0,
             vendor = "Demo Cafe",
