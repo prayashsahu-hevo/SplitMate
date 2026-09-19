@@ -74,9 +74,15 @@ object NotifLog {
         }
     }
 
-    fun event(context: Context, message: String) {
+    /**
+     * @param alsoMoney mirror into the money log. Detection events belong there: it is the
+     *                  view the debug screen opens on, and it is not evicted by chat traffic.
+     */
+    fun event(context: Context, message: String, alsoMoney: Boolean = false) {
         val ts = SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(Date())
-        append(context, FILE, "[$ts] · $message", MAX_LINES)
+        val line = "[$ts] · $message"
+        append(context, FILE, line, MAX_LINES)
+        if (alsoMoney) append(context, MONEY_FILE, line, MAX_MONEY_LINES)
     }
 
     private fun append(context: Context, fileName: String, entry: String, maxLines: Int) {

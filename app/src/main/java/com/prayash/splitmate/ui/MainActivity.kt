@@ -13,6 +13,7 @@ import androidx.core.content.ContextCompat
 import com.prayash.splitmate.R
 import com.prayash.splitmate.data.Payment
 import com.prayash.splitmate.data.Prefs
+import com.prayash.splitmate.data.UpiApps
 import com.prayash.splitmate.databinding.ActivityMainBinding
 import com.prayash.splitmate.service.PaymentNotificationListener
 import com.prayash.splitmate.service.UpiUsageWatcher
@@ -104,6 +105,20 @@ class MainActivity : AppCompatActivity() {
         mark(binding.tvUsageStatus, R.string.perm_usage, UpiUsageWatcher.hasUsageAccess(this))
         mark(binding.tvNotifStatus, R.string.perm_notifications, isNotifListenerEnabled())
         mark(binding.tvContactsStatus, R.string.perm_contacts, hasContacts())
+        showDetectedUpiApps()
+    }
+
+    /**
+     * An app missing from this list can never trigger a prompt, so show it plainly rather
+     * than making the user read the debug log to find out.
+     */
+    private fun showDetectedUpiApps() {
+        val apps = UpiApps.installed(this)
+        binding.tvDetectionStatus.text = if (apps.isEmpty()) {
+            "⚠️ No UPI apps detected — detection cannot fire"
+        } else {
+            "✅ Watching ${apps.size}: " + apps.joinToString(", ") { it.label }
+        }
     }
 
     private fun mark(view: android.widget.TextView, labelRes: Int, granted: Boolean) {

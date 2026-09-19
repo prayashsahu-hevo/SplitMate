@@ -57,14 +57,30 @@ class UpiUsageWatcher : Service() {
         lastQueryAt = System.currentTimeMillis()
 
         startForeground(NOTIF_ID, PromptNotifier.watcherNotification(this))
-        NotifLog.event(this, "Usage watcher started — watching ${upiPackages.size} UPI app(s)")
+        logDiscovered("started")
         handler.post(tick)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         // Re-discover in case the user installed a new UPI app since we started.
+        val before = upiPackages
         upiPackages = UpiApps.installedPackages(this)
+        if (upiPackages != before) logDiscovered("rescanned")
         return START_STICKY
+    }
+
+    /**
+     * Names the apps we will watch. If a UPI app is missing from this line, nothing it does
+     * can ever trigger a prompt — so this is the first thing to check when detection is silent.
+     */
+    private fun logDiscovered(what: String) {
+        val names = UpiApps.installed(this).joinToString(", ") { "${it.label} (${it.packageName})" }
+        NotifLog.event(
+            this,
+            "Usage watcher $what — watching ${upiPackages.size} UPI app(s): " +
+                names.ifBlank { "NONE FOUND" },
+            alsoMoney = true
+        )
     }
 
     override fun onDestroy() {
@@ -81,7 +97,7 @@ class UpiUsageWatcher : Service() {
         val events = try {
             usage.queryEvents(lastQueryAt - QUERY_OVERLAP_MS, now)
         } catch (e: SecurityException) {
-            NotifLog.event(this, "Usage access revoked — watcher idle")
+            NotifLog.event(this, "Usage access revoked — watcher idle", alsoMoney = true)
             return
         }
         lastQueryAt = now
@@ -109,6 +125,7 @@ class UpiUsageWatcher : Service() {
             if (pkg != currentPkg) {
                 currentPkg = pkg
                 sessionStart = at
+                NotifLog.event(this, "Opened ${UpiApps.labelFor(this, pkg)}", alsoMoney = true)
             }
             pendingEndAt = 0L      // came back to the UPI app; not leaving after all
         } else if (pkg != packageName && currentPkg != null) {
@@ -130,7 +147,11 @@ class UpiUsageWatcher : Service() {
         val dwell = endedAt - start
         if (dwell < MIN_DWELL_MS) {
             // Too short to have been a payment — a glance at the balance, a misfire.
-            NotifLog.event(this, "Ignored ${UpiApps.labelFor(this, pkg)} session (${dwell / 1000}s)")
+            NotifLog.event(
+                this,
+                "Ignored ${UpiApps.labelFor(this, pkg)} session (${dwell / 1000}s < ${MIN_DWELL_MS / 1000}s)",
+                alsoMoney = true
+            )
             return
         }
 
@@ -145,7 +166,8 @@ class UpiUsageWatcher : Service() {
         NotifLog.event(
             this,
             "Session end: $label (${dwell / 1000}s) → " +
-                if (known != null) "amount ₹${known.amount} from notification" else "amount unknown, asking"
+                if (known != null) "amount ₹${known.amount} from notification" else "amount unknown, asking",
+            alsoMoney = true
         )
 
         PromptNotifier.promptForPayment(

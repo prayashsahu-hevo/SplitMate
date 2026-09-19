@@ -105,6 +105,12 @@
                     android:text="@string/grant_notifications" />
 
                 <TextView
+                    android:id="@+id/tvDetectionStatus"
+                    style="@style/StatusRow"
+                    android:layout_marginTop="16dp"
+                    android:textIsSelectable="true" />
+
+                <TextView
                     android:id="@+id/tvContactsStatus"
                     style="@style/StatusRow"
                     android:layout_marginTop="16dp"
