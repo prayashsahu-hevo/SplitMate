@@ -2,6 +2,7 @@ package com.prayash.splitmate.service
 
 import android.app.Notification
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.provider.Settings
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
@@ -38,8 +39,9 @@ class PaymentNotificationListener : NotificationListenerService() {
 
         val payment = PaymentParser.parse(pkg, title, big ?: text, sbn.postTime)
 
-        // Debug: record EVERY notification so we can see exactly what Paytm/GPay post.
-        NotifLog.add(this, pkg, title, big ?: text, matched = payment != null)
+        // Survey: record EVERY notification, from EVERY package, tagged with a readable app
+        // name. Money-related ones also land in the low-volume money log so they survive.
+        NotifLog.add(this, pkg, title, big ?: text, matched = payment != null, label = appLabel(pkg))
 
         if (payment == null) return
 
@@ -64,6 +66,13 @@ class PaymentNotificationListener : NotificationListenerService() {
     }
 
     override fun onNotificationRemoved(sbn: StatusBarNotification) { /* no-op */ }
+
+    /** Human-readable app name for a package, so bank apps are identifiable in the log. */
+    private fun appLabel(pkg: String): String = try {
+        packageManager.getApplicationLabel(packageManager.getApplicationInfo(pkg, 0)).toString()
+    } catch (e: PackageManager.NameNotFoundException) {
+        pkg
+    }
 
     companion object {
         private const val TAG = "SplitMateListener"

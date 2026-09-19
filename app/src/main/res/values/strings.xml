@@ -77,10 +77,13 @@
     <!-- debug log -->
     <string name="open_debug_log">View captured notifications (debug)</string>
     <string name="debug_title">Captured notifications</string>
-    <string name="debug_hint">Make a payment, come back, tap Refresh, then Copy and share the Paytm/GPay entry.</string>
+    <string name="debug_hint">Make one payment in each UPI app, come back, tap Refresh, then Share the money-only log.</string>
     <string name="refresh">Refresh</string>
     <string name="copy">Copy</string>
     <string name="clear">Clear</string>
+    <string name="show_money_only">Showing: money only</string>
+    <string name="show_all">Showing: all</string>
+    <string name="share">Share</string>
     <string name="copied">Copied to clipboard</string>
 
     <string-array name="categories">
