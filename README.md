@@ -26,8 +26,8 @@ who owe you.
 
 ## Part A — Set up the Google Sheet backend
 
-1. Open your Sheet:
-   `https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/edit`
+1. Open (or create) your Google Sheet. Its ID is the long string in the URL between
+   `/d/` and `/edit` — you'll paste it into the script in step 4.
 2. **Extensions ▸ Apps Script**.
 3. Delete any boilerplate, paste the contents of [`apps-script/Code.gs`](apps-script/Code.gs), **Save**.
 4. **Deploy ▸ New deployment** → gear icon → **Web app**.

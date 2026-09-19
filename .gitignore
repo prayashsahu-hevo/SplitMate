@@ -11,3 +11,7 @@ local.properties
 app/build/
 /SplitMate-debug.apk
 /SplitMate.apk
+
+# Signing material — never commit these.
+keystore/
+keystore.properties

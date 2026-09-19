@@ -15,26 +15,38 @@ android {
         versionName "1.0"
     }
 
+    // The release key is never committed. Official builds get it from the environment
+    // (CI decodes it from a repository secret); a local build can point at its own via
+    // keystore.properties. Without either, builds fall back to Android's debug key so
+    // anyone can clone this repo and build it without any setup.
+    def keystorePropsFile = rootProject.file('keystore.properties')
+    def keystoreProps = new Properties()
+    if (keystorePropsFile.exists()) {
+        keystorePropsFile.withInputStream { keystoreProps.load(it) }
+    }
+
+    def resolvedStorePath = System.getenv('SPLITMATE_KEYSTORE') ?: keystoreProps['storeFile']
+    def hasSigningKey = resolvedStorePath != null && rootProject.file(resolvedStorePath).exists()
+
     signingConfigs {
-        // A fixed, committed key so every build (local or CI) is signed identically.
-        // This lets new builds install as UPDATES — settings and permissions are preserved.
-        // It's a throwaway key for a personal sideloaded app; the repo is private.
-        shared {
-            storeFile rootProject.file('keystore/splitmate.jks')
-            storePassword 'splitmate'
-            keyAlias 'splitmate'
-            keyPassword 'splitmate'
+        if (hasSigningKey) {
+            shared {
+                storeFile rootProject.file(resolvedStorePath)
+                storePassword System.getenv('SPLITMATE_STORE_PASSWORD') ?: keystoreProps['storePassword']
+                keyAlias System.getenv('SPLITMATE_KEY_ALIAS') ?: keystoreProps['keyAlias']
+                keyPassword System.getenv('SPLITMATE_KEY_PASSWORD') ?: keystoreProps['keyPassword']
+            }
         }
     }
 
     buildTypes {
         debug {
-            signingConfig signingConfigs.shared
+            if (hasSigningKey) signingConfig signingConfigs.shared
         }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.shared
+            if (hasSigningKey) signingConfig signingConfigs.shared
         }
     }
     compileOptions {

@@ -8,7 +8,7 @@
 
 // Your Google Sheet's ID (the long string in its URL between /d/ and /edit).
 // Using openById means this works whether the script is bound to the sheet or standalone.
-var SHEET_ID = 'YOUR_SHEET_ID';
+var SHEET_ID = 'PASTE_YOUR_SHEET_ID_HERE';
 
 var PERSONAL_HEADERS = [
   'Date', 'Time', 'Vendor', 'Amount', 'Reason', 'Category', 'Source', 'Logged At'
