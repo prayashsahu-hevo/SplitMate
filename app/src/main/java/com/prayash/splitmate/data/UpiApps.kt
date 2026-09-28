@@ -24,6 +24,43 @@ object UpiApps {
         "com.whatsapp.w4b"
     )
 
+    /**
+     * Known UPI packages, watched whenever they are installed even if discovery misses them.
+     *
+     * Discovery via `upi://pay` is what makes this work on any phone, but it is not something
+     * to bet the whole feature on: if package-visibility filtering or a missing CATEGORY_DEFAULT
+     * makes the query come back empty, nothing would ever be watched and the app would look
+     * completely dead — which is exactly the symptom we hit. The union means discovery can only
+     * ever add apps, never silently remove the common ones.
+     */
+    private val KNOWN_UPI_PACKAGES = setOf(
+        "com.google.android.apps.nbu.paisa.user",   // Google Pay
+        "net.one97.paytm",                          // Paytm
+        "com.phonepe.app",                          // PhonePe
+        "com.phonepe.simulator",
+        "in.org.npci.upiapp",                       // BHIM
+        "in.amazon.mShop.android.shopping",         // Amazon Pay
+        "com.dreamplug.androidapp",                 // CRED
+        "com.mobikwik_new",
+        "com.freecharge.android",
+        "com.snapwork.hdfc",                        // HDFC
+        "com.csam.icici.bank.imobile",              // ICICI iMobile
+        "com.sbi.lotusintouch",                     // SBI YONO
+        "com.axis.mobile",                          // Axis
+        "com.msf.kbank.mobile",                     // Kotak
+        "com.bankofbaroda.mconnect",
+        "com.infrasofttech.CentralBankofIndia",
+        "com.YESBANK",
+        "com.idbibank.abhay"
+    )
+
+    private fun isInstalled(context: Context, pkg: String): Boolean = try {
+        context.packageManager.getApplicationInfo(pkg, 0)
+        true
+    } catch (e: PackageManager.NameNotFoundException) {
+        false
+    }
+
     data class UpiApp(val packageName: String, val label: String)
 
     /** All installed UPI-capable apps, excluding our own and known noisy ones. */
@@ -32,8 +69,10 @@ object UpiApps {
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse("upi://pay"))
         val resolved = pm.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY)
 
-        return resolved
-            .mapNotNull { it.activityInfo?.packageName }
+        val discovered = resolved.mapNotNull { it.activityInfo?.packageName }
+        val known = KNOWN_UPI_PACKAGES.filter { isInstalled(context, it) }
+
+        return (discovered + known)
             .filter { it != context.packageName && it !in EXCLUDED }
             .distinct()
             .map { UpiApp(it, labelFor(context, it)) }

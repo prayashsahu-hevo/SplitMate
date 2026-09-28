@@ -45,13 +45,21 @@ class UpiUsageWatcher : Service() {
 
     private val tick = object : Runnable {
         override fun run() {
-            poll()
+            // One uncaught exception here would stop the loop rescheduling and kill detection
+            // silently for the life of the process — the failure mode is indistinguishable
+            // from "the app does nothing", so it is never allowed to escape.
+            try {
+                poll()
+            } catch (e: Throwable) {
+                NotifLog.event(this@UpiUsageWatcher, "Poll failed: ${e.javaClass.simpleName}: ${e.message}", alsoMoney = true)
+            }
             handler.postDelayed(this, if (currentPkg != null) ACTIVE_INTERVAL_MS else IDLE_INTERVAL_MS)
         }
     }
 
     override fun onCreate() {
         super.onCreate()
+        running = true
         usage = getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
         upiPackages = UpiApps.installedPackages(this)
         lastQueryAt = System.currentTimeMillis()
@@ -84,6 +92,7 @@ class UpiUsageWatcher : Service() {
     }
 
     override fun onDestroy() {
+        running = false
         handler.removeCallbacks(tick)
         NotifLog.event(this, "Usage watcher stopped")
         super.onDestroy()
@@ -179,6 +188,11 @@ class UpiUsageWatcher : Service() {
     }
 
     companion object {
+        /** Whether the watcher is alive right now — an OEM can kill it without telling anyone. */
+        @Volatile
+        var running = false
+            private set
+
         private const val NOTIF_ID = 4711
 
         /** Poll faster while a UPI app is open so the prompt lands promptly after leaving it. */
@@ -193,7 +207,7 @@ class UpiUsageWatcher : Service() {
          * A real UPI payment needs at least this long (open, pick payee, enter amount, PIN).
          * Shorter sessions are balance checks and are ignored — this is the main false-trigger control.
          */
-        private const val MIN_DWELL_MS = 10_000L
+        const val MIN_DWELL_MS = 6_000L
 
         private const val CLAIM_LEAD_MS = 10_000L
         private const val CLAIM_TRAIL_MS = 20_000L

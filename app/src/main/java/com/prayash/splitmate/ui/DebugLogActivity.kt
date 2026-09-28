@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.prayash.splitmate.R
 import com.prayash.splitmate.data.NotifLog
+import com.prayash.splitmate.util.Diagnostics
 import com.prayash.splitmate.databinding.ActivityDebugLogBinding
 
 /**
@@ -24,16 +25,24 @@ class DebugLogActivity : AppCompatActivity() {
     /** Money-only view is the default; toggle shows every captured notification. */
     private var moneyOnly = true
 
+    /** Set while the self-test report is on screen instead of the log. */
+    private var showingSelfTest = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityDebugLogBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.btnRefresh.setOnClickListener { render() }
+        binding.btnRefresh.setOnClickListener { showingSelfTest = false; render() }
+        binding.btnSelfTest.setOnClickListener {
+            showingSelfTest = true
+            render()
+        }
         binding.btnCopy.setOnClickListener { copy() }
         binding.btnShare.setOnClickListener { share() }
         binding.btnToggle.setOnClickListener {
             moneyOnly = !moneyOnly
+            showingSelfTest = false
             render()
         }
         binding.btnClear.setOnClickListener {
@@ -45,11 +54,16 @@ class DebugLogActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        render()
+        if (!showingSelfTest) render()
     }
 
     private fun render() {
-        binding.tvLog.text = if (moneyOnly) NotifLog.readMoney(this) else NotifLog.read(this)
+        binding.tvLog.text = when {
+            showingSelfTest -> Diagnostics.report(this) + "\n\n--- recent activity ---\n\n" +
+                NotifLog.readMoney(this)
+            moneyOnly -> NotifLog.readMoney(this)
+            else -> NotifLog.read(this)
+        }
         binding.btnToggle.setText(if (moneyOnly) R.string.show_money_only else R.string.show_all)
     }
 

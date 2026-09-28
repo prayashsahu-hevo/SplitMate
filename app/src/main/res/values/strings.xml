@@ -82,6 +82,7 @@
     <string name="show_money_only">Showing: money only</string>
     <string name="show_all">Showing: all</string>
     <string name="share">Share</string>
+    <string name="self_test">Run self-test \u2014 why is nothing happening?</string>
 
     <!-- usage watcher + prompt notification -->
     <string name="channel_watcher">Payment detection</string>
