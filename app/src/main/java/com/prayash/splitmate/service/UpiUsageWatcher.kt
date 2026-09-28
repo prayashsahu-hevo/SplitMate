@@ -166,11 +166,22 @@ class UpiUsageWatcher : Service() {
 
         val label = UpiApps.labelFor(this, pkg)
         // Claim an amount if any app — the UPI app itself, or the bank — posted one.
-        val known: Payment? = RecentPayments.claim(
+        val claim = RecentPayments.claim(
             fromMillis = start - CLAIM_LEAD_MS,
             toMillis = endedAt + CLAIM_TRAIL_MS,
             pkgLabel = label
         )
+
+        // The listener already prompted for this one — a second prompt would be a duplicate.
+        if (claim?.alreadyPrompted == true) {
+            NotifLog.event(
+                this,
+                "Session end: $label — already prompted for ₹${claim.payment.amount}",
+                alsoMoney = true
+            )
+            return
+        }
+        val known: Payment? = claim?.payment
 
         NotifLog.event(
             this,

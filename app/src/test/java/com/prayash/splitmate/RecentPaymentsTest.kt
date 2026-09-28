@@ -3,7 +3,9 @@ package com.prayash.splitmate
 import com.prayash.splitmate.data.Payment
 import com.prayash.splitmate.data.RecentPayments
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Test
@@ -25,30 +27,30 @@ class RecentPaymentsTest {
 
     @Test
     fun `claims a payment inside the session window`() {
-        RecentPayments.record(payment(500.0, "Google Pay", t0))
+        RecentPayments.recordIfNew(payment(500.0, "Google Pay", t0))
         val claimed = RecentPayments.claim(t0 - 10_000, t0 + 10_000, "Google Pay")
         assertNotNull(claimed)
-        assertEquals(500.0, claimed!!.amount, 0.001)
+        assertEquals(500.0, claimed!!.payment.amount, 0.001)
     }
 
     @Test
     fun `ignores a payment outside the window`() {
-        RecentPayments.record(payment(500.0, "Google Pay", t0 - 300_000))
+        RecentPayments.recordIfNew(payment(500.0, "Google Pay", t0 - 300_000))
         assertNull(RecentPayments.claim(t0 - 10_000, t0 + 10_000, "Google Pay"))
     }
 
     @Test
     fun `prefers the upi app over the bank for the same payment`() {
         // Both announce it; the UPI app's wording names the payee, so it wins.
-        RecentPayments.record(payment(500.0, "HDFC Bank", t0))
-        RecentPayments.record(payment(500.0, "Paytm", t0 + 1_000))
+        RecentPayments.recordIfNew(payment(500.0, "HDFC Bank", t0))
+        RecentPayments.recordIfNew(payment(500.0, "Paytm", t0 + 1_000))
         val claimed = RecentPayments.claim(t0 - 10_000, t0 + 10_000, "Paytm")
-        assertEquals("Paytm", claimed!!.source)
+        assertEquals("Paytm", claimed!!.payment.source)
     }
 
     @Test
     fun `claiming removes the entry so one payment is never logged twice`() {
-        RecentPayments.record(payment(500.0, "Google Pay", t0))
+        RecentPayments.recordIfNew(payment(500.0, "Google Pay", t0))
         assertNotNull(RecentPayments.claim(t0 - 10_000, t0 + 10_000, "Google Pay"))
         assertNull(RecentPayments.claim(t0 - 10_000, t0 + 10_000, "Google Pay"))
     }
@@ -56,9 +58,39 @@ class RecentPaymentsTest {
     @Test
     fun `falls back to the bank when the upi app said nothing`() {
         // This is the Paytm case: only the bank announced it.
-        RecentPayments.record(payment(500.0, "HDFC Bank", t0))
+        RecentPayments.recordIfNew(payment(500.0, "HDFC Bank", t0))
         val claimed = RecentPayments.claim(t0 - 10_000, t0 + 10_000, "Paytm")
-        assertEquals("HDFC Bank", claimed!!.source)
+        assertEquals("HDFC Bank", claimed!!.payment.source)
+    }
+
+    @Test
+    fun `duplicate posts of one payment are rejected`() {
+        // Truecaller posts the same bank debit three times; only the first should prompt.
+        assertTrue(RecentPayments.recordIfNew(payment(1.0, "Truecaller", t0)))
+        assertFalse(RecentPayments.recordIfNew(payment(1.0, "Truecaller", t0 + 500)))
+        assertFalse(RecentPayments.recordIfNew(payment(1.0, "Truecaller", t0 + 900)))
+    }
+
+    @Test
+    fun `a genuine second payment of the same amount later is not a duplicate`() {
+        assertTrue(RecentPayments.recordIfNew(payment(1.0, "Truecaller", t0)))
+        assertTrue(RecentPayments.recordIfNew(payment(1.0, "Truecaller", t0 + 70_000)))
+    }
+
+    @Test
+    fun `watcher learns the listener already prompted so it stays quiet`() {
+        val p = payment(500.0, "HDFC Bank", t0)
+        RecentPayments.recordIfNew(p)
+        RecentPayments.markPrompted(p)
+        val claimed = RecentPayments.claim(t0 - 10_000, t0 + 10_000, "Paytm")
+        assertTrue(claimed!!.alreadyPrompted)
+    }
+
+    @Test
+    fun `an unprompted payment is not marked as already shown`() {
+        RecentPayments.recordIfNew(payment(500.0, "HDFC Bank", t0))
+        val claimed = RecentPayments.claim(t0 - 10_000, t0 + 10_000, "Paytm")
+        assertFalse(claimed!!.alreadyPrompted)
     }
 
     @Test

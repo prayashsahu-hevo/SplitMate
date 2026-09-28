@@ -32,12 +32,35 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <queries>
-        <!-- Discover every installed UPI app: NPCI requires them all to handle upi://pay.
-             This is what makes the app work on any phone without a hardcoded app list. -->
+        <!-- Discovers UPI apps we don't know about, provided their handler matches this.
+             Not sufficient on its own: an app whose filter does not match stays invisible,
+             and then even getApplicationInfo reports it as not installed. -->
         <intent>
             <action android:name="android.intent.action.VIEW" />
             <data android:scheme="upi" />
         </intent>
+
+        <!-- Explicit visibility for known UPI and bank apps. Without these, Android 11+
+             package visibility hides them outright - which is why Paytm was never watched
+             even while it was in the foreground. -->
+        <package android:name="com.google.android.apps.nbu.paisa.user" />
+        <package android:name="net.one97.paytm" />
+        <package android:name="com.phonepe.app" />
+        <package android:name="com.phonepe.simulator" />
+        <package android:name="in.org.npci.upiapp" />
+        <package android:name="in.amazon.mShop.android.shopping" />
+        <package android:name="com.dreamplug.androidapp" />
+        <package android:name="com.mobikwik_new" />
+        <package android:name="com.freecharge.android" />
+        <package android:name="com.snapwork.hdfc" />
+        <package android:name="com.csam.icici.bank.imobile" />
+        <package android:name="com.sbi.lotusintouch" />
+        <package android:name="com.axis.mobile" />
+        <package android:name="com.msf.kbank.mobile" />
+        <package android:name="com.bankofbaroda.mconnect" />
+        <package android:name="com.infrasofttech.CentralBankofIndia" />
+        <package android:name="com.YESBANK" />
+        <package android:name="com.idbibank.abhay" />
         <!-- Resolve/launch WhatsApp by package name on Android 11+. -->
         <package android:name="com.whatsapp" />
         <package android:name="com.whatsapp.w4b" />

@@ -6,14 +6,17 @@ import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import com.prayash.splitmate.data.NotifLog
 import com.prayash.splitmate.data.RecentPayments
+import com.prayash.splitmate.util.PromptNotifier
 
 /**
  * Reads notifications to recover the *amount* of a payment.
  *
- * This is no longer the trigger — [UpiUsageWatcher] is, because it fires for every UPI app
- * including ones that post nothing. This service's only job is to parse an amount when some
- * app does bother to announce the payment (the UPI app itself, or the user's bank) and park
- * it in [RecentPayments] for the watcher to claim.
+ * A notification naming an amount is already proof a payment happened, so this prompts on it
+ * directly rather than waiting for a UPI session to end. The bank counts too: Truecaller and
+ * banking apps surface the debit within seconds, which covers UPI apps that announce nothing.
+ *
+ * [UpiUsageWatcher] remains the fallback for payments nothing announces at all, and stays
+ * quiet about anything already raised here.
  *
  * It never sees the screen: the OS hands it notification objects only.
  */
@@ -38,10 +41,27 @@ class PaymentNotificationListener : NotificationListenerService() {
 
         NotifLog.add(this, pkg, title, body, matched = payment != null, label = appLabel(pkg))
 
-        if (payment != null) {
-            // Park it; the usage watcher claims it when the UPI session ends.
-            RecentPayments.record(payment)
+        if (payment == null) return
+
+        // Duplicate posts of one payment are common (Truecaller posts the same debit
+        // three times), so only the first becomes a prompt.
+        if (!RecentPayments.recordIfNew(payment)) {
+            NotifLog.event(this, "Duplicate of ₹${payment.amount} ignored")
+            return
         }
+
+        NotifLog.event(
+            this,
+            "Payment announced by ${payment.source}: ₹${payment.amount} → prompting",
+            alsoMoney = true
+        )
+        RecentPayments.markPrompted(payment)
+        PromptNotifier.promptForPayment(
+            context = this,
+            appLabel = payment.source,
+            known = payment,
+            sessionEndedAt = payment.timestampMillis
+        )
     }
 
     override fun onNotificationRemoved(sbn: StatusBarNotification) { /* no-op */ }
